@@ -46,8 +46,6 @@ _MTL_OPTIONS(NS::UInteger, IndirectCommandType) {
     IndirectCommandTypeDrawIndexedPatches = 8,
     IndirectCommandTypeConcurrentDispatch = 32,
     IndirectCommandTypeConcurrentDispatchThreads = 64,
-    IndirectCommandTypeDrawMeshThreadgroups = 128,
-    IndirectCommandTypeDrawMeshThreads = 256,
 };
 
 struct IndirectCommandBufferExecutionRange
@@ -80,12 +78,6 @@ public:
 
     NS::UInteger                                  maxKernelBufferBindCount() const;
     void                                          setMaxKernelBufferBindCount(NS::UInteger maxKernelBufferBindCount);
-
-    NS::UInteger                                  maxObjectBufferBindCount() const;
-    void                                          setMaxObjectBufferBindCount(NS::UInteger maxObjectBufferBindCount);
-
-    NS::UInteger                                  maxMeshBufferBindCount() const;
-    void                                          setMaxMeshBufferBindCount(NS::UInteger maxMeshBufferBindCount);
 
     bool                                          supportRayTracing() const;
     void                                          setSupportRayTracing(bool supportRayTracing);
@@ -183,28 +175,6 @@ _MTL_INLINE NS::UInteger MTL::IndirectCommandBufferDescriptor::maxKernelBufferBi
 _MTL_INLINE void MTL::IndirectCommandBufferDescriptor::setMaxKernelBufferBindCount(NS::UInteger maxKernelBufferBindCount)
 {
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMaxKernelBufferBindCount_), maxKernelBufferBindCount);
-}
-
-// property: maxObjectBufferBindCount
-_MTL_INLINE NS::UInteger MTL::IndirectCommandBufferDescriptor::maxObjectBufferBindCount() const
-{
-    return Object::sendMessage<NS::UInteger>(this, _MTL_PRIVATE_SEL(maxObjectBufferBindCount));
-}
-
-_MTL_INLINE void MTL::IndirectCommandBufferDescriptor::setMaxObjectBufferBindCount(NS::UInteger maxObjectBufferBindCount)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMaxObjectBufferBindCount_), maxObjectBufferBindCount);
-}
-
-// property: maxMeshBufferBindCount
-_MTL_INLINE NS::UInteger MTL::IndirectCommandBufferDescriptor::maxMeshBufferBindCount() const
-{
-    return Object::sendMessage<NS::UInteger>(this, _MTL_PRIVATE_SEL(maxMeshBufferBindCount));
-}
-
-_MTL_INLINE void MTL::IndirectCommandBufferDescriptor::setMaxMeshBufferBindCount(NS::UInteger maxMeshBufferBindCount)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMaxMeshBufferBindCount_), maxMeshBufferBindCount);
 }
 
 // property: supportRayTracing

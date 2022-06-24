@@ -445,9 +445,6 @@ public:
     NS::UInteger                                        payloadMemoryLength() const;
     void                                                setPayloadMemoryLength(NS::UInteger payloadMemoryLength);
 
-    MTL::Size                                           maxThreadgroupsPerMeshGrid() const;
-    void                                                setMaxThreadgroupsPerMeshGrid(MTL::Size maxThreadgroupsPerMeshGrid);
-
     class PipelineBufferDescriptorArray*                objectBuffers() const;
 
     class PipelineBufferDescriptorArray*                meshBuffers() const;
@@ -476,9 +473,6 @@ public:
 
     MTL::PixelFormat                                    stencilAttachmentPixelFormat() const;
     void                                                setStencilAttachmentPixelFormat(MTL::PixelFormat stencilAttachmentPixelFormat);
-
-    bool                                                supportIndirectCommandBuffers() const;
-    void                                                setSupportIndirectCommandBuffers(bool supportIndirectCommandBuffers);
 
     NS::Array*                                          binaryArchives() const;
     void                                                setBinaryArchives(const NS::Array* binaryArchives);
@@ -1500,17 +1494,6 @@ _MTL_INLINE void MTL::MeshRenderPipelineDescriptor::setPayloadMemoryLength(NS::U
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setPayloadMemoryLength_), payloadMemoryLength);
 }
 
-// property: maxThreadgroupsPerMeshGrid
-_MTL_INLINE MTL::Size MTL::MeshRenderPipelineDescriptor::maxThreadgroupsPerMeshGrid() const
-{
-    return Object::sendMessage<MTL::Size>(this, _MTL_PRIVATE_SEL(maxThreadgroupsPerMeshGrid));
-}
-
-_MTL_INLINE void MTL::MeshRenderPipelineDescriptor::setMaxThreadgroupsPerMeshGrid(MTL::Size maxThreadgroupsPerMeshGrid)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMaxThreadgroupsPerMeshGrid_), maxThreadgroupsPerMeshGrid);
-}
-
 // property: objectBuffers
 _MTL_INLINE MTL::PipelineBufferDescriptorArray* MTL::MeshRenderPipelineDescriptor::objectBuffers() const
 {
@@ -1610,17 +1593,6 @@ _MTL_INLINE MTL::PixelFormat MTL::MeshRenderPipelineDescriptor::stencilAttachmen
 _MTL_INLINE void MTL::MeshRenderPipelineDescriptor::setStencilAttachmentPixelFormat(MTL::PixelFormat stencilAttachmentPixelFormat)
 {
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setStencilAttachmentPixelFormat_), stencilAttachmentPixelFormat);
-}
-
-// property: supportIndirectCommandBuffers
-_MTL_INLINE bool MTL::MeshRenderPipelineDescriptor::supportIndirectCommandBuffers() const
-{
-    return Object::sendMessageSafe<bool>(this, _MTL_PRIVATE_SEL(supportIndirectCommandBuffers));
-}
-
-_MTL_INLINE void MTL::MeshRenderPipelineDescriptor::setSupportIndirectCommandBuffers(bool supportIndirectCommandBuffers)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setSupportIndirectCommandBuffers_), supportIndirectCommandBuffers);
 }
 
 // property: binaryArchives

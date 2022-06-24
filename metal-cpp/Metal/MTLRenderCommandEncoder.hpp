@@ -281,16 +281,6 @@ public:
 
     void         setObjectThreadgroupMemoryLength(NS::UInteger length, NS::UInteger index);
 
-    void         setObjectVisibleFunctionTable(const class VisibleFunctionTable* functionTable, NS::UInteger bufferIndex);
-
-    void         setObjectVisibleFunctionTables(const class VisibleFunctionTable* functionTables[], NS::Range range);
-
-    void         setObjectIntersectionFunctionTable(const class IntersectionFunctionTable* intersectionFunctionTable, NS::UInteger bufferIndex);
-
-    void         setObjectIntersectionFunctionTables(const class IntersectionFunctionTable* intersectionFunctionTables[], NS::Range range);
-
-    void         setObjectAccelerationStructure(const class AccelerationStructure* accelerationStructure, NS::UInteger bufferIndex);
-
     void         setMeshBytes(const void* bytes, NS::UInteger length, NS::UInteger index);
 
     void         setMeshBuffer(const class Buffer* buffer, NS::UInteger offset, NS::UInteger index);
@@ -310,16 +300,6 @@ public:
     void         setMeshSamplerState(const class SamplerState* sampler, float lodMinClamp, float lodMaxClamp, NS::UInteger index);
 
     void         setMeshSamplerStates(const class SamplerState* samplers[], const float* lodMinClamps, const float* lodMaxClamps, NS::Range range);
-
-    void         setMeshVisibleFunctionTable(const class VisibleFunctionTable* functionTable, NS::UInteger bufferIndex);
-
-    void         setMeshVisibleFunctionTables(const class VisibleFunctionTable* functionTables[], NS::Range range);
-
-    void         setMeshIntersectionFunctionTable(const class IntersectionFunctionTable* intersectionFunctionTable, NS::UInteger bufferIndex);
-
-    void         setMeshIntersectionFunctionTables(const class IntersectionFunctionTable* intersectionFunctionTables[], NS::Range range);
-
-    void         setMeshAccelerationStructure(const class AccelerationStructure* accelerationStructure, NS::UInteger bufferIndex);
 
     void         drawMeshThreadgroups(MTL::Size threadgroupsPerGrid, MTL::Size threadsPerObjectThreadgroup, MTL::Size threadsPerMeshThreadgroup);
 
@@ -806,36 +786,6 @@ _MTL_INLINE void MTL::RenderCommandEncoder::setObjectThreadgroupMemoryLength(NS:
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectThreadgroupMemoryLength_atIndex_), length, index);
 }
 
-// method: setObjectVisibleFunctionTable:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setObjectVisibleFunctionTable(const MTL::VisibleFunctionTable* functionTable, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectVisibleFunctionTable_atBufferIndex_), functionTable, bufferIndex);
-}
-
-// method: setObjectVisibleFunctionTables:withBufferRange:
-_MTL_INLINE void MTL::RenderCommandEncoder::setObjectVisibleFunctionTables(const MTL::VisibleFunctionTable* functionTables[], NS::Range range)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectVisibleFunctionTables_withBufferRange_), functionTables, range);
-}
-
-// method: setObjectIntersectionFunctionTable:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setObjectIntersectionFunctionTable(const MTL::IntersectionFunctionTable* intersectionFunctionTable, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectIntersectionFunctionTable_atBufferIndex_), intersectionFunctionTable, bufferIndex);
-}
-
-// method: setObjectIntersectionFunctionTables:withBufferRange:
-_MTL_INLINE void MTL::RenderCommandEncoder::setObjectIntersectionFunctionTables(const MTL::IntersectionFunctionTable* intersectionFunctionTables[], NS::Range range)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectIntersectionFunctionTables_withBufferRange_), intersectionFunctionTables, range);
-}
-
-// method: setObjectAccelerationStructure:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setObjectAccelerationStructure(const MTL::AccelerationStructure* accelerationStructure, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setObjectAccelerationStructure_atBufferIndex_), accelerationStructure, bufferIndex);
-}
-
 // method: setMeshBytes:length:atIndex:
 _MTL_INLINE void MTL::RenderCommandEncoder::setMeshBytes(const void* bytes, NS::UInteger length, NS::UInteger index)
 {
@@ -894,36 +844,6 @@ _MTL_INLINE void MTL::RenderCommandEncoder::setMeshSamplerState(const MTL::Sampl
 _MTL_INLINE void MTL::RenderCommandEncoder::setMeshSamplerStates(const MTL::SamplerState* samplers[], const float* lodMinClamps, const float* lodMaxClamps, NS::Range range)
 {
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshSamplerStates_lodMinClamps_lodMaxClamps_withRange_), samplers, lodMinClamps, lodMaxClamps, range);
-}
-
-// method: setMeshVisibleFunctionTable:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setMeshVisibleFunctionTable(const MTL::VisibleFunctionTable* functionTable, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshVisibleFunctionTable_atBufferIndex_), functionTable, bufferIndex);
-}
-
-// method: setMeshVisibleFunctionTables:withBufferRange:
-_MTL_INLINE void MTL::RenderCommandEncoder::setMeshVisibleFunctionTables(const MTL::VisibleFunctionTable* functionTables[], NS::Range range)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshVisibleFunctionTables_withBufferRange_), functionTables, range);
-}
-
-// method: setMeshIntersectionFunctionTable:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setMeshIntersectionFunctionTable(const MTL::IntersectionFunctionTable* intersectionFunctionTable, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshIntersectionFunctionTable_atBufferIndex_), intersectionFunctionTable, bufferIndex);
-}
-
-// method: setMeshIntersectionFunctionTables:withBufferRange:
-_MTL_INLINE void MTL::RenderCommandEncoder::setMeshIntersectionFunctionTables(const MTL::IntersectionFunctionTable* intersectionFunctionTables[], NS::Range range)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshIntersectionFunctionTables_withBufferRange_), intersectionFunctionTables, range);
-}
-
-// method: setMeshAccelerationStructure:atBufferIndex:
-_MTL_INLINE void MTL::RenderCommandEncoder::setMeshAccelerationStructure(const MTL::AccelerationStructure* accelerationStructure, NS::UInteger bufferIndex)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(setMeshAccelerationStructure_atBufferIndex_), accelerationStructure, bufferIndex);
 }
 
 // method: drawMeshThreadgroups:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:

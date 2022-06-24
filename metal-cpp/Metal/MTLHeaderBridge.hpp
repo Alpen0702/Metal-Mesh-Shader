@@ -161,7 +161,7 @@ _MTL_PRIVATE_DEF_PRO(MTLFunctionStitchingNode);
 _MTL_PRIVATE_DEF_PRO(MTLHeap);
 _MTL_PRIVATE_DEF_PRO(MTLIOCommandBuffer);
 _MTL_PRIVATE_DEF_PRO(MTLIOCommandQueue);
-_MTL_PRIVATE_DEF_PRO(MTLIOHandle);
+_MTL_PRIVATE_DEF_PRO(MTLIOFileHandle);
 _MTL_PRIVATE_DEF_PRO(MTLIOScratchBuffer);
 _MTL_PRIVATE_DEF_PRO(MTLIOScratchBufferAllocator);
 _MTL_PRIVATE_DEF_PRO(MTLIndirectCommandBuffer);
@@ -210,8 +210,6 @@ _MTL_PRIVATE_DEF_SEL(addDebugMarker_range_,
     "addDebugMarker:range:");
 _MTL_PRIVATE_DEF_SEL(addFunctionWithDescriptor_library_error_,
     "addFunctionWithDescriptor:library:error:");
-_MTL_PRIVATE_DEF_SEL(addMeshRenderPipelineFunctionsWithDescriptor_error_,
-    "addMeshRenderPipelineFunctionsWithDescriptor:error:");
 _MTL_PRIVATE_DEF_SEL(addPresentedHandler_,
     "addPresentedHandler:");
 _MTL_PRIVATE_DEF_SEL(addRenderPipelineFunctionsWithDescriptor_error_,
@@ -806,18 +804,12 @@ _MTL_PRIVATE_DEF_SEL(maxFragmentCallStackDepth,
     "maxFragmentCallStackDepth");
 _MTL_PRIVATE_DEF_SEL(maxKernelBufferBindCount,
     "maxKernelBufferBindCount");
-_MTL_PRIVATE_DEF_SEL(maxMeshBufferBindCount,
-    "maxMeshBufferBindCount");
-_MTL_PRIVATE_DEF_SEL(maxObjectBufferBindCount,
-    "maxObjectBufferBindCount");
 _MTL_PRIVATE_DEF_SEL(maxSampleCount,
     "maxSampleCount");
 _MTL_PRIVATE_DEF_SEL(maxTessellationFactor,
     "maxTessellationFactor");
 _MTL_PRIVATE_DEF_SEL(maxThreadgroupMemoryLength,
     "maxThreadgroupMemoryLength");
-_MTL_PRIVATE_DEF_SEL(maxThreadgroupsPerMeshGrid,
-    "maxThreadgroupsPerMeshGrid");
 _MTL_PRIVATE_DEF_SEL(maxThreadsPerThreadgroup,
     "maxThreadsPerThreadgroup");
 _MTL_PRIVATE_DEF_SEL(maxTotalThreadsPerMeshThreadgroup,
@@ -1012,10 +1004,6 @@ _MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithDescriptor_options_completionHand
     "newRenderPipelineStateWithDescriptor:options:completionHandler:");
 _MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithDescriptor_options_reflection_error_,
     "newRenderPipelineStateWithDescriptor:options:reflection:error:");
-_MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithMeshDescriptor_completionHandler_,
-    "newRenderPipelineStateWithMeshDescriptor:completionHandler:");
-_MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithMeshDescriptor_error_,
-    "newRenderPipelineStateWithMeshDescriptor:error:");
 _MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithMeshDescriptor_options_completionHandler_,
     "newRenderPipelineStateWithMeshDescriptor:options:completionHandler:");
 _MTL_PRIVATE_DEF_SEL(newRenderPipelineStateWithMeshDescriptor_options_reflection_error_,
@@ -1584,14 +1572,8 @@ _MTL_PRIVATE_DEF_SEL(setMaxFragmentCallStackDepth_,
     "setMaxFragmentCallStackDepth:");
 _MTL_PRIVATE_DEF_SEL(setMaxKernelBufferBindCount_,
     "setMaxKernelBufferBindCount:");
-_MTL_PRIVATE_DEF_SEL(setMaxMeshBufferBindCount_,
-    "setMaxMeshBufferBindCount:");
-_MTL_PRIVATE_DEF_SEL(setMaxObjectBufferBindCount_,
-    "setMaxObjectBufferBindCount:");
 _MTL_PRIVATE_DEF_SEL(setMaxTessellationFactor_,
     "setMaxTessellationFactor:");
-_MTL_PRIVATE_DEF_SEL(setMaxThreadgroupsPerMeshGrid_,
-    "setMaxThreadgroupsPerMeshGrid:");
 _MTL_PRIVATE_DEF_SEL(setMaxTotalThreadsPerMeshThreadgroup_,
     "setMaxTotalThreadsPerMeshThreadgroup:");
 _MTL_PRIVATE_DEF_SEL(setMaxTotalThreadsPerObjectThreadgroup_,
@@ -1604,8 +1586,6 @@ _MTL_PRIVATE_DEF_SEL(setMaxVertexBufferBindCount_,
     "setMaxVertexBufferBindCount:");
 _MTL_PRIVATE_DEF_SEL(setMaxVertexCallStackDepth_,
     "setMaxVertexCallStackDepth:");
-_MTL_PRIVATE_DEF_SEL(setMeshAccelerationStructure_atBufferIndex_,
-    "setMeshAccelerationStructure:atBufferIndex:");
 _MTL_PRIVATE_DEF_SEL(setMeshBuffer_offset_atIndex_,
     "setMeshBuffer:offset:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setMeshBufferOffset_atIndex_,
@@ -1616,10 +1596,6 @@ _MTL_PRIVATE_DEF_SEL(setMeshBytes_length_atIndex_,
     "setMeshBytes:length:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setMeshFunction_,
     "setMeshFunction:");
-_MTL_PRIVATE_DEF_SEL(setMeshIntersectionFunctionTable_atBufferIndex_,
-    "setMeshIntersectionFunctionTable:atBufferIndex:");
-_MTL_PRIVATE_DEF_SEL(setMeshIntersectionFunctionTables_withBufferRange_,
-    "setMeshIntersectionFunctionTables:withBufferRange:");
 _MTL_PRIVATE_DEF_SEL(setMeshSamplerState_atIndex_,
     "setMeshSamplerState:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setMeshSamplerState_lodMinClamp_lodMaxClamp_atIndex_,
@@ -1634,10 +1610,6 @@ _MTL_PRIVATE_DEF_SEL(setMeshTextures_withRange_,
     "setMeshTextures:withRange:");
 _MTL_PRIVATE_DEF_SEL(setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth_,
     "setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth:");
-_MTL_PRIVATE_DEF_SEL(setMeshVisibleFunctionTable_atBufferIndex_,
-    "setMeshVisibleFunctionTable:atBufferIndex:");
-_MTL_PRIVATE_DEF_SEL(setMeshVisibleFunctionTables_withBufferRange_,
-    "setMeshVisibleFunctionTables:withBufferRange:");
 _MTL_PRIVATE_DEF_SEL(setMinFilter_,
     "setMinFilter:");
 _MTL_PRIVATE_DEF_SEL(setMipFilter_,
@@ -1670,8 +1642,6 @@ _MTL_PRIVATE_DEF_SEL(setNormalizedCoordinates_,
     "setNormalizedCoordinates:");
 _MTL_PRIVATE_DEF_SEL(setObject_atIndexedSubscript_,
     "setObject:atIndexedSubscript:");
-_MTL_PRIVATE_DEF_SEL(setObjectAccelerationStructure_atBufferIndex_,
-    "setObjectAccelerationStructure:atBufferIndex:");
 _MTL_PRIVATE_DEF_SEL(setObjectBuffer_offset_atIndex_,
     "setObjectBuffer:offset:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setObjectBufferOffset_atIndex_,
@@ -1682,10 +1652,6 @@ _MTL_PRIVATE_DEF_SEL(setObjectBytes_length_atIndex_,
     "setObjectBytes:length:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setObjectFunction_,
     "setObjectFunction:");
-_MTL_PRIVATE_DEF_SEL(setObjectIntersectionFunctionTable_atBufferIndex_,
-    "setObjectIntersectionFunctionTable:atBufferIndex:");
-_MTL_PRIVATE_DEF_SEL(setObjectIntersectionFunctionTables_withBufferRange_,
-    "setObjectIntersectionFunctionTables:withBufferRange:");
 _MTL_PRIVATE_DEF_SEL(setObjectSamplerState_atIndex_,
     "setObjectSamplerState:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setObjectSamplerState_lodMinClamp_lodMaxClamp_atIndex_,
@@ -1702,10 +1668,6 @@ _MTL_PRIVATE_DEF_SEL(setObjectThreadgroupMemoryLength_atIndex_,
     "setObjectThreadgroupMemoryLength:atIndex:");
 _MTL_PRIVATE_DEF_SEL(setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth_,
     "setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth:");
-_MTL_PRIVATE_DEF_SEL(setObjectVisibleFunctionTable_atBufferIndex_,
-    "setObjectVisibleFunctionTable:atBufferIndex:");
-_MTL_PRIVATE_DEF_SEL(setObjectVisibleFunctionTables_withBufferRange_,
-    "setObjectVisibleFunctionTables:withBufferRange:");
 _MTL_PRIVATE_DEF_SEL(setOffset_,
     "setOffset:");
 _MTL_PRIVATE_DEF_SEL(setOpaque_,

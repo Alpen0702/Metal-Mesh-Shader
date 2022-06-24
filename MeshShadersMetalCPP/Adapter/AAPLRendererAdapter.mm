@@ -6,7 +6,7 @@ This class forwards the view draw and resize methods to the C++ renderer class.
 */
 
 #if __has_feature(objc_arc)
-#error This file must be compiled with -fobjc-no-arc
+#error This file must be compiled with -fno-objc-arc
 #endif
 
 #import "AAPLRendererAdapter.h"

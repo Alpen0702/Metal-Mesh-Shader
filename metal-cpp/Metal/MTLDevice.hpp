@@ -142,9 +142,9 @@ _MTL_ENUM(NS::UInteger, SparseTextureRegionAlignmentMode) {
 };
 
 _MTL_ENUM(NS::UInteger, SparsePageSize) {
-    SparsePageSize16 = 101,
-    SparsePageSize64 = 102,
-    SparsePageSize256 = 103,
+    SparsePageSize16 = 16,
+    SparsePageSize64 = 64,
+    SparsePageSize256 = 256,
 };
 
 struct AccelerationStructureSizes
@@ -393,11 +393,7 @@ public:
 
     void                            newRenderPipelineState(const class TileRenderPipelineDescriptor* descriptor, MTL::PipelineOption options, const MTL::NewRenderPipelineStateWithReflectionCompletionHandler completionHandler);
 
-    class RenderPipelineState*      newRenderPipelineState(const class MeshRenderPipelineDescriptor* descriptor, NS::Error** error);
-
     class RenderPipelineState*      newRenderPipelineState(const class MeshRenderPipelineDescriptor* descriptor, MTL::PipelineOption options, const MTL::AutoreleasedRenderPipelineReflection* reflection, NS::Error** error);
-
-    void                            newRenderPipelineState(const class MeshRenderPipelineDescriptor* descriptor, const MTL::NewRenderPipelineStateCompletionHandler completionHandler);
 
     void                            newRenderPipelineState(const class MeshRenderPipelineDescriptor* descriptor, MTL::PipelineOption options, const MTL::NewRenderPipelineStateWithReflectionCompletionHandler completionHandler);
 
@@ -1077,22 +1073,10 @@ _MTL_INLINE void MTL::Device::newRenderPipelineState(const MTL::TileRenderPipeli
     Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(newRenderPipelineStateWithTileDescriptor_options_completionHandler_), descriptor, options, completionHandler);
 }
 
-// method: newRenderPipelineStateWithMeshDescriptor:error:
-_MTL_INLINE MTL::RenderPipelineState* MTL::Device::newRenderPipelineState(const MTL::MeshRenderPipelineDescriptor* descriptor, NS::Error** error)
-{
-    return Object::sendMessage<MTL::RenderPipelineState*>(this, _MTL_PRIVATE_SEL(newRenderPipelineStateWithMeshDescriptor_error_), descriptor, error);
-}
-
 // method: newRenderPipelineStateWithMeshDescriptor:options:reflection:error:
 _MTL_INLINE MTL::RenderPipelineState* MTL::Device::newRenderPipelineState(const MTL::MeshRenderPipelineDescriptor* descriptor, MTL::PipelineOption options, const MTL::AutoreleasedRenderPipelineReflection* reflection, NS::Error** error)
 {
     return Object::sendMessage<MTL::RenderPipelineState*>(this, _MTL_PRIVATE_SEL(newRenderPipelineStateWithMeshDescriptor_options_reflection_error_), descriptor, options, reflection, error);
-}
-
-// method: newRenderPipelineStateWithMeshDescriptor:completionHandler:
-_MTL_INLINE void MTL::Device::newRenderPipelineState(const MTL::MeshRenderPipelineDescriptor* descriptor, const MTL::NewRenderPipelineStateCompletionHandler completionHandler)
-{
-    Object::sendMessage<void>(this, _MTL_PRIVATE_SEL(newRenderPipelineStateWithMeshDescriptor_completionHandler_), descriptor, completionHandler);
 }
 
 // method: newRenderPipelineStateWithMeshDescriptor:options:completionHandler:

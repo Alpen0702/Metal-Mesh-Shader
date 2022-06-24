@@ -273,7 +273,6 @@ void AAPLRenderer::buildShaders()
     if (_useMultisampleAntialiasing)
         pMeshDesc->setRasterSampleCount(4);
 
-    pMeshDesc->setMaxThreadgroupsPerMeshGrid(MTL::Size(AAPLMaxThreadgroupsPerMeshGrid, 1, 1));
     pMeshDesc->setMaxTotalThreadsPerObjectThreadgroup(AAPLMaxTotalThreadsPerObjectThreadgroup);
     pMeshDesc->setMaxTotalThreadsPerMeshThreadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup);
 
@@ -292,7 +291,7 @@ void AAPLRenderer::buildShaders()
         handleError(&pError);
         pMeshDesc->setObjectFunction(pObjectFn);
 
-        _pRenderPipelineState[i] = _pDevice->newRenderPipelineState(pMeshDesc, &pError);
+        _pRenderPipelineState[i] = _pDevice->newRenderPipelineState(pMeshDesc, MTL::PipelineOptionNone, nullptr, &pError);
         pObjectFn->release();
         pMeshFn->release();
         pConstantValues->release();

@@ -130,10 +130,6 @@ _MTL_ENUM(NS::UInteger, DataType) {
     DataTypeIntersectionFunctionTable = 116,
     DataTypePrimitiveAccelerationStructure = 117,
     DataTypeInstanceAccelerationStructure = 118,
-    DataTypeBFloat = 121,
-    DataTypeBFloat2 = 122,
-    DataTypeBFloat3 = 123,
-    DataTypeBFloat4 = 124,
 };
 
 _MTL_ENUM(NS::Integer, BindingType) {
