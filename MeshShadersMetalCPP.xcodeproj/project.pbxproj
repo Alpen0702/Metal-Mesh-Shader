@@ -16,6 +16,7 @@
 		71E8C2062786622F00F6CC0E /* AAPLRendererAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B94A43F428380DF400C2D5C2 /* metal-cpp in Resources */ = {isa = PBXBuildFile; fileRef = B94A43F328380DF400C2D5C2 /* metal-cpp */; };
 		B95EA0B62832F59400DA2BE2 /* metal-cpp-extensions in Resources */ = {isa = PBXBuildFile; fileRef = B95EA0B42832F59400DA2BE2 /* metal-cpp-extensions */; };
+		B9C635C6285BCDA100BF4C86 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9C635C5285BCDA100BF4C86 /* MetalKit.framework */; };
 		B9D3A5B12825AA16009D2405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B9D3A5B02825AA16009D2405 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		AB39788FA4CA4B2383CB3997 /* ACKNOWLEDGEMENTS.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = ACKNOWLEDGEMENTS.txt; sourceTree = "<group>"; };
 		B94A43F328380DF400C2D5C2 /* metal-cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "metal-cpp"; sourceTree = SOURCE_ROOT; };
 		B95EA0B42832F59400DA2BE2 /* metal-cpp-extensions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "metal-cpp-extensions"; sourceTree = SOURCE_ROOT; };
+		B9C635C5285BCDA100BF4C86 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B9D3A5B02825AA16009D2405 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = MeshShadersMetalCPP/Application/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		DB55E512C4F33A4499732578 /* SampleCode.xcconfig */ = {isa = PBXFileReference; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -48,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9C635C6285BCDA100BF4C86 /* MetalKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +126,7 @@
 		47FCC7A4278527640089AEE0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B9C635C5285BCDA100BF4C86 /* MetalKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

@@ -75,7 +75,7 @@ matrix_float4x4 matrix_perspective_right_hand(float fovyRadians, float aspect, f
 float bernsteinBasisCubic(float u, int i)
 {
     constexpr float n_choose_i[4] = {1, 3, 3, 1};
-    return n_choose_i[i] * powf(u, float(i)) * powf(1.0f-u, float(3-i));
+    return n_choose_i[i] * powf(u, float(i)) * powf(1.0f - u, float(3 - i));
 }
 
 /// Return the bicubic patch point where k contains 16 elements.
@@ -109,7 +109,7 @@ simd_float4 bicubicPatch(int shape, float u, float v)
             {
                 controlPoints[k].x = i / 3.0f - 0.5f;
                 controlPoints[k].y = j / 3.0f - 0.5f;
-                controlPoints[k].z = -0.5+0.5*drand48();//verticesZ[shape][k];
+                controlPoints[k].z = -0.5 + 0.5 * drand48();
                 k++;
             }
         }
@@ -135,8 +135,8 @@ size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vec
         for (size_t i = 0; i < segmentsX; i++)
         {
             AAPLVertex vtx;
-            float u = i/float(segmentsX-1);
-            float v = j/float(segmentsY-1);
+            float u = i / float(segmentsX - 1);
+            float v = j / float(segmentsY - 1);
             vtx.position = bicubicPatch(shape, u, v);
             simd_float3 u1 = bicubicPatch3(shape, u - 0.01f, v);
             simd_float3 u2 = bicubicPatch3(shape, u + 0.01f, v);
@@ -146,7 +146,7 @@ size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vec
             simd_float3 dv = v2 - v1;
             simd_float3 N = simd_normalize(simd_cross(du, dv));
             vtx.normal = simd_make_float4(N.x, N.y, N.z, 0);
-            vtx.uv = simd_make_float2(i/float(segmentsX), j/float(segmentsY));
+            vtx.uv = simd_make_float2(i / float(segmentsX), j / float(segmentsY));
             
             vertices.push_back(vtx);
         }
@@ -158,7 +158,7 @@ size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vec
 size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, std::vector<AAPLIndexType>& indices)
 {
     // A patch contains (segmentsX - 1) * (segmentsY - 1) squares that need six triangle indices.
-    size_t indexCount = (segmentsX-1) * (segmentsY-1) * 6;
+    size_t indexCount = (segmentsX - 1) * (segmentsY - 1) * 6;
 
     // Resize the the indices array so it has enough space for the new indices.
     indices.resize(indices.size() + indexCount);
@@ -229,12 +229,12 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
         view.setSampleCount(4);
 
     _pCommandQueue = _pDevice->newCommandQueue();
-    _pTransformsBuffer = _pDevice->newBuffer(AAPLNumObjects * sizeof(matrix_float4x4), MTL::ResourceStorageModeManaged);
-    _pMeshColorsBuffer = _pDevice->newBuffer(AAPLNumObjects * sizeof(vector_float3), MTL::ResourceStorageModeManaged);
+    _pTransformsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(matrix_float4x4), MTL::ResourceStorageModeManaged);
+    _pMeshColorsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(vector_float3), MTL::ResourceStorageModeManaged);
     const size_t LODCount = 3;
-    _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjects * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeManaged);
-    _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjects * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeManaged);
-    _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjects * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeManaged);
+    _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeManaged);
+    _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeManaged);
+    _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeManaged);
     buildShaders();
     makeMeshlets();
 }
@@ -305,6 +305,7 @@ void AAPLRenderer::buildShaders()
 
     handleError(&pError);
 
+    pFragFn->release();
     pMeshDesc->release();
     pLibrary->release();
     depthStencilDesc->release();
@@ -316,8 +317,8 @@ void AAPLRenderer::makeMeshlets()
     size_t segY = AAPLNumPatchSegmentsY;
     meshVertices.clear();
     meshIndices.clear();
-    meshInfo.resize(AAPLNumObjects);
-    for (int i = 0; i < AAPLNumObjects; i++)
+    meshInfo.resize(AAPLNumObjectsXYZ);
+    for (int i = 0; i < AAPLNumObjectsXYZ; i++)
     {
         AAPLMeshInfo& mesh = meshInfo[i];
         mesh.patchIndex = i;
@@ -371,15 +372,15 @@ void AAPLRenderer::updateStage()
     float y_div = 1.0f / AAPLNumObjectsY;
     float z_div = 1.0f / AAPLNumObjectsZ;
 
-    for (size_t x = 0; x < AAPLNumObjectsX; ++x)
+    for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
     {
-        float x_pos = 2*(x - (float(AAPLNumObjectsX-1)/2));
+        float z_pos = -12.0f - z * 2.0f;
         for (size_t y = 0; y < AAPLNumObjectsY; ++y)
         {
-            float y_pos = 2*(y - (float(AAPLNumObjectsY-1)/2));
-            for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
+            float y_pos = 2 * (y - (float(AAPLNumObjectsY - 1) / 2));
+            for (size_t x = 0; x < AAPLNumObjectsX; ++x)
             {
-                float z_pos = -12.0f - z * 2.0f;
+                float x_pos = 2 * (x - (float(AAPLNumObjectsX - 1) / 2));
                 transforms[count] = matrix_multiply(matrix4x4_translation(x_pos, y_pos, z_pos), matrix4x4_YRotate(degree));
                 meshColors[count] = simd_make_float3((x + 1.0f) * x_div, y * y_div, (1.0f + z) * z_div);
                 meshColors[count] = simd_normalize(meshColors[count]) * 0.75f;
@@ -404,7 +405,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     pRenderPassDesc->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(0.65f, 0.75f, 0.85f, 1.0f));
     MTL::RenderCommandEncoder* pRenderEncoder = pCommandBuffer->renderCommandEncoder(pRenderPassDesc);
 
-    matrix_float4x4 viewMatrix = matrix4x4_translation(0, offsetY, -10 + 10*offsetZ);
+    matrix_float4x4 viewMatrix = matrix4x4_translation(0, offsetY, -10 + 10 * offsetZ);
     matrix_float4x4 viewProjectionMatrix = matrix_multiply(_projectionMatrix, viewMatrix);
 
     // Update the object positions.
@@ -436,7 +437,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     /// The parameter `positionInGrid` (`threadgroup_position_in_grid`) in the shader addresses the submesh.
     /// This tells the object shader the index of the transform for the submesh.
     /// The mesh shader uses the payload to generate the primitives (points, lines, or triangles).
-    pRenderEncoder->drawMeshThreadgroups(MTL::Size(AAPLNumObjectsX, AAPLNumObjectsY, 1),
+    pRenderEncoder->drawMeshThreadgroups(MTL::Size(AAPLNumObjectsX, AAPLNumObjectsY, AAPLNumObjectsZ),
                                          MTL::Size(AAPLMaxTotalThreadsPerObjectThreadgroup, 1, 1),
                                          MTL::Size(AAPLMaxTotalThreadsPerMeshThreadgroup, 1, 1));
 

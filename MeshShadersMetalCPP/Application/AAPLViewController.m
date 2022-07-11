@@ -36,6 +36,7 @@ Abstract:
     }
     else
     {
+        NSLog(@"Device: %@", _view.device.name);
         _renderer = [[AAPLRendererAdapter alloc] initWithMtkView:_view];
         NSAssert(_renderer, @"Renderer failed initialization");
         

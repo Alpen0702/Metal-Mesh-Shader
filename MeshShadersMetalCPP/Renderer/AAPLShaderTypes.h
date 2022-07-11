@@ -72,7 +72,8 @@ using AAPLIndexType = uint16_t;
 static constexpr constant uint32_t AAPLNumObjectsX = 16;
 static constexpr constant uint32_t AAPLNumObjectsY = 8;
 static constexpr constant uint32_t AAPLNumObjectsZ = 1;
-static constexpr constant uint32_t AAPLNumObjects = AAPLNumObjectsX * AAPLNumObjectsY * AAPLNumObjectsZ;
+static constexpr constant uint32_t AAPLNumObjectsXY = AAPLNumObjectsX * AAPLNumObjectsY;
+static constexpr constant uint32_t AAPLNumObjectsXYZ = AAPLNumObjectsXY * AAPLNumObjectsZ;
 
 static constexpr constant uint32_t AAPLNumPatchSegmentsX = 8;
 static constexpr constant uint32_t AAPLNumPatchSegmentsY = 8;

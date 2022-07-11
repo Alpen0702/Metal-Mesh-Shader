@@ -88,8 +88,11 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
                                    uint3                positionInGrid       [[threadgroup_position_in_grid]])
 {
     // threadIndex is the object index.
-    uint threadIndex = positionInGrid.y * AAPLNumObjectsX + positionInGrid.x;
-    constant AAPLMeshInfo& meshInfo = meshes[threadIndex % AAPLNumObjects];
+    uint threadIndex = (AAPLNumObjectsXY * positionInGrid.z) + (AAPLNumObjectsX * positionInGrid.y) + positionInGrid.x;
+    if (threadIndex >= AAPLNumObjectsXYZ || threadIndex >= 1024)
+        return;
+    
+    constant AAPLMeshInfo& meshInfo = meshes[threadIndex];
     
     payload.lod = 0;
     payload.color = colors[threadIndex];
@@ -148,11 +151,7 @@ void meshShaderMeshStageFunctionPoints(AAPLPointMeshType output,
                                        uint tid [[threadgroup_position_in_grid]])
 {
     // Set the number of primitives for the entire mesh.
-    // This function does this one time (lid==0) because all threads don't need to write the same value.
-    if (lid == 0)
-    {
-        output.set_primitive_count(payload.vertexCount);
-    }
+    output.set_primitive_count(payload.vertexCount);
     
     // Apply the transformation matrix to all the vertex data.
     // For performance, place the vertices common to all LODs in the first part of the buffer and then limit the vertex count.
@@ -183,12 +182,7 @@ void meshShaderMeshStageFunctionLines(AAPLLineMeshType output,
     constexpr uint LinesPerPrimitive = 4;
     
     // Set the number of primitives for the entire mesh.
-    // This function does this one time (lid==0) because all threads don't need to write the same value.
-    if (lid == 0)
-    {
-        // There are three lines in one triangle.
-        output.set_primitive_count(MaxPrimitives * LinesPerPrimitive);
-    }
+    output.set_primitive_count(MaxPrimitives * LinesPerPrimitive);
     
     // Apply the transformation matrix to all the vertex data.
     // For performance, place the vertices common to all LODs in the first part of the buffer and then limit the vertex count.
@@ -239,11 +233,7 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
                                  uint tid [[threadgroup_position_in_grid]])
 {
     // Set the number of primitives for the entire mesh.
-    // This function does this one time (lid==0) because all threads don't need to write the same value.
-    if (lid == 0)
-    {
-        output.set_primitive_count(payload.primitiveCount);
-    }
+    output.set_primitive_count(payload.primitiveCount);
     
     // Apply the transformation matrix to all the vertex data.
     // For performance, place the vertices common to all LODs in the first part of the buffer and then limit the vertex count.
