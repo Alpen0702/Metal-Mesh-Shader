@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-This class forwards ObjC view draw and resize methods to the C++ renderer class.
+This class forwards Objective-C view draw and resize methods to the C++ renderer class.
 */
 
 #import <Foundation/NSObject.h>

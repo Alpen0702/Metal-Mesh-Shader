@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-This file provides the vertex and fragment shaders to demonstrate mesh shaders.
+The MSL source for the app's vertex, fragment, and mesh shaders.
 */
 
 #include <metal_stdlib>
@@ -48,8 +48,11 @@ struct payload_t
     uint8_t lod;
     uint32_t primitiveCount;
     uint8_t vertexCount;
-    // The object stage uses this to copy indices into the payload.
-    // The mesh stage uses this to set the indices for the geometry.
+
+    /// The array of vertex indices for the meshlet into the vertices array.
+    ///
+    /// The object stage uses this to copy indices into the payload.
+    /// The mesh stage uses this to set the indices for the geometry.
     uint8_t indices[1024];
 };
 
@@ -65,16 +68,16 @@ struct fragmentIn
     primOut p;
 };
 
-/// Define a mesh declaration type that supports points.
+/// Defines a mesh declaration type that supports points.
 using AAPLPointMeshType = metal::mesh<pointVertexOut, primOut, AAPLMaxMeshletVertexCount, AAPLMaxMeshletVertexCount, metal::topology::point>;
 
-/// Define a mesh declaration type that supports lines.
+/// Defines a mesh declaration type that supports lines.
 using AAPLLineMeshType = metal::mesh<vertexOut, primOut, AAPLMaxMeshletVertexCount, (AAPLNumPatchSegmentsX-1)*(AAPLNumPatchSegmentsY-1)*4, metal::topology::line>;
 
-/// Define a mesh declaration type that supports triangles.
+/// Defines a mesh declaration type that supports triangles.
 using AAPLTriangleMeshType = metal::mesh<vertexOut, primOut, AAPLMaxMeshletVertexCount, AAPLMaxPrimitiveCount, metal::topology::triangle>;
 
-/// An object stage that generates one submesh group.
+/// The object stage that generates one submesh group.
 [[object, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerObjectThreadgroup), max_total_threadgroups_per_mesh_grid(AAPLMaxThreadgroupsPerMeshGrid)]]
 void meshShaderObjectStageFunction(object_data payload_t& payload            [[payload]],
                                    mesh_grid_properties meshGridProperties,
@@ -139,11 +142,11 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
     payload.transform = viewProjectionMatrix * transforms[threadIndex];
 
     // Set the output submesh count for the mesh shader.
-    // Because the mesh shader is only producing one mesh, the threadgroup grid size is 1x1x1.
+    // Because the mesh shader is only producing one mesh, the threadgroup grid size is 1 x 1 x 1.
     meshGridProperties.set_threadgroups_per_grid(uint3(1, 1, 1));
 }
 
-// This mesh stage function generates a point mesh.
+/// The mesh stage function that generates a point mesh.
 [[mesh, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup)]]
 void meshShaderMeshStageFunctionPoints(AAPLPointMeshType output,
                                        const object_data payload_t& payload [[payload]],
@@ -169,14 +172,14 @@ void meshShaderMeshStageFunctionPoints(AAPLPointMeshType output,
     }
 }
 
-// This mesh stage function generates a line mesh.
+/// The mesh stage function that generates a line mesh.
 [[mesh, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup)]]
 void meshShaderMeshStageFunctionLines(AAPLLineMeshType output,
                                       const object_data payload_t& payload [[payload]],
                                       uint lid [[thread_index_in_threadgroup]])
 {
     // Calculate the number of primitives to generate a mesh of lines that outline the quads.
-    // The input payload is ordered as pairs of triangles so divide by two.
+    // The input payload is ordered as pairs of triangles, so divide by two.
     // The number of lines per primitive is four (a quad).
     uint MaxPrimitives = payload.primitiveCount/2;
     constexpr uint LinesPerPrimitive = 4;
@@ -225,7 +228,7 @@ void meshShaderMeshStageFunctionLines(AAPLLineMeshType output,
     }
 }
 
-// This mesh stage function generates a triangle mesh.
+/// The mesh stage function that generates a triangle mesh.
 [[mesh, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup)]]
 void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
                                  const object_data payload_t& payload [[payload]],
@@ -261,12 +264,26 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
     }
 }
 
+/// The fragment shader that blends a bit of Lambertian light with the meshlet's normal and mesh color.
 fragment float4 fragmentShader(fragmentIn in [[stage_in]])
 {
     float3 N = normalize(in.v.normal);
-    float3 L = float3(1,1,1);
-    float NdotL = 0.75 + 0.25*dot(N, L);
-    return float4(mix(in.p.color * NdotL, N*0.5+0.5, 0.2), 1.0f);
+    float3 L = normalize(float3(1, 1, 1));
+
+    // The dot product of the normal and light direction isn't clamped and makes
+    // the intensity of the mesh color range between `0.5` and `1.0`.
+    float3 ambientIntensity = float3(1.0);
+    float3 lightIntensity = float3(100.0);
+    float3 colorIntensity = ambientIntensity + lightIntensity * (0.5 + 0.5 * dot(N, L));
+
+    // Reduce the dynamic range by a simple tone-mapping operator.
+    colorIntensity = colorIntensity / (1.0 + colorIntensity);
+
+    // Change the range of the normal from [-1, 1] to [0, 1] to use it as a color.
+    float3 normalColor = N * 0.5 + 0.5;
+
+    // Add a 20% mix of the normal color with the shaded meshlet color.
+    return float4(mix(colorIntensity * in.p.color, normalColor, 0.2), 1.0f);
 }
 
 #endif

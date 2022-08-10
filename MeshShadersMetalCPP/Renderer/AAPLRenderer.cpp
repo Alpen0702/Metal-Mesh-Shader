@@ -2,7 +2,7 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-This class uses mesh shaders to draw bicubic Bezier patches to the view and handles resize events.
+The renderer's mesh shader implementation that draws bicubic Bezier patches.
 */
 
 #include <MetalKit/MetalKit.hpp>
@@ -15,7 +15,7 @@ constexpr bool _useMultisampleAntialiasing = true;
 
 #pragma mark - Matrix Math Utilities
 
-/// Return a scaling matrix.
+/// Returns a scaling matrix.
 matrix_float4x4 matrix4x4_scaling(float s)
 {
     return simd_matrix_from_rows(
@@ -25,7 +25,7 @@ matrix_float4x4 matrix4x4_scaling(float s)
         simd_make_float4(0, 0, 0, 1)); // Row 4
 }
 
-/// Return a translation matrix.
+/// Returns a translation matrix.
 matrix_float4x4 matrix4x4_translation(float tx, float ty, float tz)
 {
     return simd_matrix_from_rows(
@@ -35,7 +35,7 @@ matrix_float4x4 matrix4x4_translation(float tx, float ty, float tz)
         simd_make_float4(0, 0, 0, 1)); // Row 4
 }
 
-/// Return a rotation matrix.
+/// Returns a rotation matrix.
 matrix_float4x4 matrix4x4_ZRotate(float angleRadians)
 {
     const float a = angleRadians;
@@ -46,7 +46,7 @@ matrix_float4x4 matrix4x4_ZRotate(float angleRadians)
         simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f));       // Row 4
 }
 
-/// Return a rotation matrix.
+/// Returns a rotation matrix.
 matrix_float4x4 matrix4x4_YRotate(float angleRadians)
 {
     const float a = angleRadians;
@@ -57,7 +57,7 @@ matrix_float4x4 matrix4x4_YRotate(float angleRadians)
         simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f));       // Row 4
 }
 
-/// Return a perspective transform matrix.
+/// Returns a perspective transform matrix.
 matrix_float4x4 matrix_perspective_right_hand(float fovyRadians, float aspect, float nearZ, float farZ)
 {
     float ys = 1 / tanf(fovyRadians * 0.5);
@@ -71,14 +71,14 @@ matrix_float4x4 matrix_perspective_right_hand(float fovyRadians, float aspect, f
     );
 }
 
-/// Calculate the Berstein basis function with index 3, and subindex i.
+/// Calculates the Berstein basis function with index 3, and subindex i.
 float bernsteinBasisCubic(float u, int i)
 {
     constexpr float n_choose_i[4] = {1, 3, 3, 1};
     return n_choose_i[i] * powf(u, float(i)) * powf(1.0f - u, float(3 - i));
 }
 
-/// Return the bicubic patch point where k contains 16 elements.
+/// Returns the bicubic patch point where k contains 16 elements.
 simd_float4 bicubicPoint(float u, float v, std::vector<simd_float3> controlPoints)
 {
     simd_float3 p = simd_make_float3(0, 0, 0);
@@ -94,6 +94,9 @@ simd_float4 bicubicPoint(float u, float v, std::vector<simd_float3> controlPoint
     return simd_make_float4(p.x, p.y, p.z, 1.0f);
 }
 
+/// Returns a point on a bicubic patch.
+///
+/// The bicubic patch point is in parametric coordinates (u, v).
 simd_float4 bicubicPatch(int shape, float u, float v)
 {
     static int gshape = -1;
@@ -118,13 +121,14 @@ simd_float4 bicubicPatch(int shape, float u, float v)
     return bicubicPoint(u, v, controlPoints);
 }
 
+/// Returns a point on a bicubic patch with coordinates (u, v) for one of the bicubic patches.
 simd_float3 bicubicPatch3(int shape, float u, float v)
 {
     simd_float4 p = bicubicPatch(shape, u, v);
     return simd_make_float3(p.x, p.y, p.z);
 }
 
-/// Return a patch surface.
+/// Calculates the vertex data for a bicubic patch and returns the number of vertices the method adds to the array.
 size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vector<AAPLVertex>& vertices)
 {
     // Resize the vertex array and check that it meets the size limitations.
@@ -155,12 +159,13 @@ size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vec
     return vertexCount;
 }
 
+/// Calculates the index data for a bicubic patch and returns the number of indices the method adds to the array.
 size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, std::vector<AAPLIndexType>& indices)
 {
     // A patch contains (segmentsX - 1) * (segmentsY - 1) squares that need six triangle indices.
     size_t indexCount = (segmentsX - 1) * (segmentsY - 1) * 6;
 
-    // Resize the the indices array so it has enough space for the new indices.
+    // Resize the indices array so it has enough space for the new indices.
     indices.resize(indices.size() + indexCount);
     
     // Generate the indices.
@@ -185,6 +190,7 @@ size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, s
     return indexCount;
 }
 
+/// Adds the indices of a bicubic patch indices to an array and sets the range of vertices the object shader needs to copy into the mesh shader payload.
 void addLODs(AAPLIndexRange& lod, size_t segX, size_t segY, std::vector<AAPLIndexType>& meshIndices)
 {
     lod.startIndex = (uint32_t)meshIndices.size();
@@ -198,7 +204,7 @@ void addLODs(AAPLIndexRange& lod, size_t segX, size_t segY, std::vector<AAPLInde
         lod.vertexCount = std::max<uint16_t>(lod.vertexCount, meshIndices[i]);
     }
     
-    // The vertex count is one more than the highest index found.
+    // The vertex count is one more than the highest index that the system finds.
     lod.vertexCount += 1;
     
     // Set the number of triangles.
@@ -220,6 +226,7 @@ void handleError(NS::Error** pError)
 
 #pragma mark - AAPLRenderer implementation
 
+/// Initializes the renderer with a view.
 AAPLRenderer::AAPLRenderer(MTK::View& view)
 {
     degree = 0.0f;
@@ -229,16 +236,20 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
         view.setSampleCount(4);
 
     _pCommandQueue = _pDevice->newCommandQueue();
-    _pTransformsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(matrix_float4x4), MTL::ResourceStorageModeManaged);
-    _pMeshColorsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(vector_float3), MTL::ResourceStorageModeManaged);
+    for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
+        _pTransformsBuffer[i] = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(matrix_float4x4), MTL::ResourceStorageModeShared);
+    }
+    _pMeshColorsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(vector_float3), MTL::ResourceStorageModeShared);
     const size_t LODCount = 3;
-    _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeManaged);
-    _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeManaged);
-    _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeManaged);
+    _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeShared);
+    _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeShared);
+    _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeShared);
     buildShaders();
     makeMeshlets();
+    makeMeshletColors();
 }
 
+/// Releases the renderer's GPU resources, including buffers and pipeline states.
 AAPLRenderer::~AAPLRenderer()
 {
     _pDevice->release();
@@ -250,10 +261,13 @@ AAPLRenderer::~AAPLRenderer()
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
     _pMeshInfoBuffer->release();
-    _pTransformsBuffer->release();
     _pMeshColorsBuffer->release();
+    for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
+        _pTransformsBuffer[i]->release();
+    }
 }
 
+/// Builds the vertex, fragment, and mesh shader pipelines.
 void AAPLRenderer::buildShaders()
 {
     using NS::StringEncoding::UTF8StringEncoding;
@@ -311,6 +325,7 @@ void AAPLRenderer::buildShaders()
     depthStencilDesc->release();
 }
 
+/// Initializes the meshlet vertex data for all the bicubic patches.
 void AAPLRenderer::makeMeshlets()
 {
     size_t segX = AAPLNumPatchSegmentsX;
@@ -353,24 +368,41 @@ void AAPLRenderer::makeMeshlets()
     memcpy(_pMeshVerticesBuffer->contents(), meshVertices.data(), sizeof(AAPLVertex) * meshVertices.size());
     memcpy(_pMeshIndicesBuffer->contents(), meshIndices.data(), sizeof(AAPLIndexType) * meshIndices.size());
     memcpy(_pMeshInfoBuffer->contents(), meshInfo.data(), sizeof(AAPLMeshInfo) * meshInfo.size());
-    _pMeshVerticesBuffer->didModifyRange(NS::Range(0, _pMeshVerticesBuffer->length()));
-    _pMeshIndicesBuffer->didModifyRange(NS::Range(0, _pMeshIndicesBuffer->length()));
-    _pMeshInfoBuffer->didModifyRange(NS::Range(0, _pMeshInfoBuffer->length()));
 }
 
-/// Update the object state before encoding the rendering commands.
-void AAPLRenderer::updateStage()
+/// Sets up the color for each bicubic patch.
+void AAPLRenderer::makeMeshletColors()
 {
-    // Get the array pointers for the buffers.
-    matrix_float4x4* transforms = reinterpret_cast<matrix_float4x4*>(_pTransformsBuffer->contents());
     simd_float3* meshColors = reinterpret_cast<simd_float3*>(_pMeshColorsBuffer->contents());
 
     int count = 0;
-    degree += rotationSpeed * M_PI / 180.0f;
 
     float x_div = 1.0f / (AAPLNumObjectsX + 1);
     float y_div = 1.0f / AAPLNumObjectsY;
     float z_div = 1.0f / AAPLNumObjectsZ;
+
+    for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
+    {
+        for (size_t y = 0; y < AAPLNumObjectsY; ++y)
+        {
+            for (size_t x = 0; x < AAPLNumObjectsX; ++x)
+            {
+                meshColors[count] = simd_make_float3((x + 1.0f) * x_div, y * y_div, (1.0f + z) * z_div);
+                meshColors[count] = simd_normalize(meshColors[count]) * 0.75f;
+                count++;
+            }
+        }
+    }
+}
+
+/// Updates the object transform matrix state before other methods encode any render commands.
+void AAPLRenderer::updateStage()
+{
+    // Get the array pointers for the buffers.
+    matrix_float4x4* transforms = reinterpret_cast<matrix_float4x4*>(_pTransformsBuffer[_curFrameInFlight]->contents());
+
+    int count = 0;
+    degree += rotationSpeed * M_PI / 180.0f;
 
     for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
     {
@@ -382,21 +414,17 @@ void AAPLRenderer::updateStage()
             {
                 float x_pos = 2 * (x - (float(AAPLNumObjectsX - 1) / 2));
                 transforms[count] = matrix_multiply(matrix4x4_translation(x_pos, y_pos, z_pos), matrix4x4_YRotate(degree));
-                meshColors[count] = simd_make_float3((x + 1.0f) * x_div, y * y_div, (1.0f + z) * z_div);
-                meshColors[count] = simd_normalize(meshColors[count]) * 0.75f;
                 count++;
             }
         }
     }
-    
-    // Tell Metal when the buffer contents change.
-    _pTransformsBuffer->didModifyRange(NS::Range(0, _pTransformsBuffer->length()));
-    _pMeshColorsBuffer->didModifyRange(NS::Range(0, _pMeshColorsBuffer->length()));
 }
 
-/// Draw the mesh shaders scene.
+/// Draws the mesh shaders scene.
 void AAPLRenderer::draw(MTK::View* pView)
 {
+    _curFrameInFlight = (_curFrameInFlight + 1) % AAPLMaxFramesInFlight;
+
     NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
 
     // Get a command buffer and start a render command encoder.
@@ -420,7 +448,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
     pRenderEncoder->setObjectBuffer(_pMeshInfoBuffer, 0, AAPLBufferIndexMeshInfo);
     
-    pRenderEncoder->setObjectBuffer(_pTransformsBuffer, 0, AAPLBufferIndexTransforms);
+    pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
     pRenderEncoder->setObjectBuffer(_pMeshColorsBuffer, 0, AAPLBufferIndexMeshColor);
     pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
     pRenderEncoder->setObjectBytes(&lodChoice, 4, AAPLBufferIndexLODChoice);
@@ -448,7 +476,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     pPool->release();
 }
 
-/// Handle the view resize in this MTKView callback.
+/// Responds to changes in the drawable's size or the device's orientation.
 void AAPLRenderer::drawableSizeWillChange(CGSize size)
 {
     float aspect = size.width / (float)size.height;

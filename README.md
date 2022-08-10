@@ -8,7 +8,9 @@ Choose and render meshes with several levels of detail using object and mesh sha
 
 ## Configure the sample code project
 
-This sample code project requires the following:
+To run this sample, you need Xcode 14 or later, and a physical device that supports [`MTLGPUFamilyMac2`](https://developer.apple.com/documentation/metal/mtlgpufamily/mtlgpufamilymac2) or [`MTLGPUFamilyApple7`](https://developer.apple.com/documentation/metal/mtlgpufamily/mtlgpufamilyapple7), such as:
 
-* macOS 13 or later
-* Xcode 14 or later
+* A Mac running macOS 13 or later
+* An iOS device with an A15 chip or later running iOS 16 or later
+
+This sample can only run on a physical device because it uses Metal’s mesh shader features, which Simulator doesn’t support.

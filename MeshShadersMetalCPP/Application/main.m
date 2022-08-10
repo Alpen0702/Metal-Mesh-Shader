@@ -2,13 +2,24 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-The main function that starts the app.
+The app's entry point for each platform.
 */
 
+#import <TargetConditionals.h>
+#import "AAPLAppDelegate.h"
 
-#import <Cocoa/Cocoa.h>
+#if TARGET_OS_OSX
 
-int main(int argc, const char * argv[])
+int main(int argc, const char* argv[])
 {
     return NSApplicationMain(argc, argv);
 }
+
+#elif TARGET_OS_IPHONE
+
+int main(int argc, char* argv[])
+{
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AAPLAppDelegate class]));
+}
+
+#endif

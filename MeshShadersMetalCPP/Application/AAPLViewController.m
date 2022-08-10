@@ -2,16 +2,20 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-This file provides a Metal view controller for a Cocoa app.
+The cross-platform view controller.
 */
 #import "AAPLViewController.h"
 #import "AAPLRendererAdapter.h"
-#import <MetalKit/MetalKit.h>
+
+@import MetalKit;
 
 @implementation AAPLViewController
 {
     MTKView* _view;
     AAPLRendererAdapter* _renderer;
+
+#if TARGET_OS_OSX
+
     __weak IBOutlet NSSegmentedControl* _lodDetailChoice;
     __weak IBOutlet NSSegmentedControl* _topologyChoice;
     __weak IBOutlet NSSegmentedControl* _rotationChoice;
@@ -20,6 +24,15 @@ Abstract:
     __weak IBOutlet NSTextField* _topologyChoiceLabel;
     __weak IBOutlet NSTextField* _rotationChoiceLabel;
     __weak IBOutlet NSTextField* _translationAmountLabel;
+
+#elif TARGET_OS_IPHONE
+
+    __weak IBOutlet UISegmentedControl* _lodDetailChoice;
+    __weak IBOutlet UISegmentedControl* _topologyChoice;
+    __weak IBOutlet UISegmentedControl* _rotationChoice;
+    __weak IBOutlet UISlider* _translationAmount;
+
+#endif
 }
 
 - (void)viewDidLoad
@@ -28,23 +41,32 @@ Abstract:
     
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
+    NSAssert(_view.device, @"The app couldn't get a GPU device.");
+    NSLog(@"Device: %@", _view.device.name);
+    
+    // Check whether the GPU device supports mesh shaders.
+    if (![_view.device supportsFamily:MTLGPUFamilyMac2] &&
+        ![_view.device supportsFamily:MTLGPUFamilyApple7])
+    {
+        NSLog(@"This GPU device doesn't support mesh shaders.");
 
-    // If the device doesn't support mesh shaders, print a log message and don't initialize the renderer.
-    if (!_view.device)
-    {
-        NSLog(@"Mesh shaders are not supported on this device");
+        // Create an empty view and return.
+#if TARGET_OS_OSX
+        self.view = [[NSView alloc] initWithFrame:_view.frame];
+#elif TARGET_OS_IPHONE
+        self.view = [[UIView alloc] initWithFrame:_view.frame];
+        self.view.backgroundColor = [[UIColor alloc] initWithRed:1.0 green:0.0 blue:0.0 alpha:1.0];
+#endif
+        return;
     }
-    else
-    {
-        NSLog(@"Device: %@", _view.device.name);
-        _renderer = [[AAPLRendererAdapter alloc] initWithMtkView:_view];
-        NSAssert(_renderer, @"Renderer failed initialization");
-        
-        [_renderer drawableSizeWillChange:_view.bounds.size];
-        
-        // Configure the view to use this class instance to handle the draw and resize events.
-        _view.delegate = self;
-    }
+
+    _renderer = [[AAPLRendererAdapter alloc] initWithMtkView:_view];
+    NSAssert(_renderer, @"Renderer failed initialization");
+
+    [_renderer drawableSizeWillChange:_view.bounds.size];
+
+    // Configure the view to use this class instance to handle the draw and resize events.
+    _view.delegate = self;
 }
 
 - (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size
@@ -54,6 +76,7 @@ Abstract:
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+#if TARGET_OS_OSX
     const BOOL demoMode = NO;
     const BOOL invisibleControls = NO;
     float offsetY = invisibleControls ? 0.0f : -1.5f;
@@ -130,17 +153,25 @@ Abstract:
             [_topologyChoice setSelectedSegment:2]; // Triangles
         }
     }
-    
-    switch([_rotationChoice selectedSegment]) {
-        case -1:
-        case 0: [_renderer setRotationSpeed:0.0f]; break; // Off
-        case 1: [_renderer setRotationSpeed:0.1f]; break; // Slow
-        case 2: [_renderer setRotationSpeed:0.25f]; break; // Normal
-    }
-    
-    [_renderer setTranslation:[_translationAmount floatValue] offsetY:offsetY];
-    
-    switch ([_lodDetailChoice selectedSegment])
+#elif TARGET_OS_IPHONE
+    float offsetY = 0.0f;
+#endif
+
+#if TARGET_OS_OSX
+    NSInteger lodDetailChoice = _lodDetailChoice.selectedSegment;
+    NSInteger topologyChoice = _topologyChoice.selectedSegment;
+    NSInteger rotationChoice = _rotationChoice.selectedSegment;
+    float translationAmount = _translationAmount.floatValue;
+#elif TARGET_OS_IPHONE
+    NSInteger lodDetailChoice = _lodDetailChoice.selectedSegmentIndex;
+    NSInteger topologyChoice = _topologyChoice.selectedSegmentIndex;
+    NSInteger rotationChoice = _rotationChoice.selectedSegmentIndex;
+    float translationAmount = _translationAmount.value;
+#endif
+
+    [_renderer setTranslation:translationAmount offsetY:offsetY];
+
+    switch (lodDetailChoice)
     {
         case -1:
         case 0: [_renderer setLODChoice:2]; break; // Low
@@ -148,14 +179,21 @@ Abstract:
         case 2: [_renderer setLODChoice:0]; break; // High
     }
     
-    switch([_topologyChoice selectedSegment])
+    switch(topologyChoice)
     {
         case -1:
         case 0: [_renderer setTopologyChoice:0]; break; // Points
         case 1: [_renderer setTopologyChoice:1]; break; // Lines
         case 2: [_renderer setTopologyChoice:2]; break; // Triangles
     }
-    
+
+    switch(rotationChoice) {
+        case -1:
+        case 0: [_renderer setRotationSpeed:0.0f]; break; // Off
+        case 1: [_renderer setRotationSpeed:0.1f]; break; // Slow
+        case 2: [_renderer setRotationSpeed:0.25f]; break; // Normal
+    }
+
     [_renderer drawInMTKView:view];
 }
 

@@ -2,11 +2,29 @@
 See LICENSE folder for this sample’s licensing information.
 
 Abstract:
-This file contains the app delegate for a Cocoa app.
+The header for the cross-platform app delegate.
 */
 
-#import <Cocoa/Cocoa.h>
+#import <TargetConditionals.h>
 
-@interface AAPLAppDelegate : NSObject<NSApplicationDelegate>
+#if TARGET_OS_OSX
+
+@import AppKit;
+#define PlatformAppDelegate NSObject <NSApplicationDelegate>
+#define PlatformWindow      NSWindow
+#define PlatformApplication NSApplication
+
+#elif TARGET_OS_IPHONE
+
+@import UIKit;
+#define PlatformAppDelegate UIResponder <UIApplicationDelegate>
+#define PlatformWindow      UIWindow
+#define PlatformApplication UIApplication
+
+#endif
+
+@interface AAPLAppDelegate : PlatformAppDelegate
+
+@property (strong, nonatomic) PlatformWindow* window;
 
 @end
