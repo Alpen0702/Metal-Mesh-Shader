@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "tiny_gltf.h"
-#incldue "Renderer/AAPLShaderTypes.h"
+#include "AAPLShaderTypes.h"
 
 #include <cstdio>
 #include <fstream>
@@ -39,6 +39,8 @@ void loadGLTF(const char* path, std::vector<AAPLVertex>& vertices, std::vector<A
 		ret = gltf_ctx.LoadASCIIFromFile(&model, &err, &warn, input_filename.c_str());
 	}
 
+    std::cout << input_filename << std::endl;
+    
 	for (const auto& mesh : model.meshes) {
 		for (const auto& primitive : mesh.primitives) {
 			const tinygltf::Accessor& positionAccessor = model.accessors[primitive.attributes.find("POSITION")->second];
@@ -110,8 +112,4 @@ void loadGLTF(const char* path, std::vector<AAPLVertex>& vertices, std::vector<A
 			}
 		}
 	}
-}
-
-void PrintMeshVertices(const tinygltf::Model& model) {
-	
 }

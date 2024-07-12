@@ -14,6 +14,12 @@
 		47FCC7AD27852A730089AEE0 /* AAPLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */; };
 		47FCC7B32787CDB30089AEE0 /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */; };
 		71E8C2062786622F00F6CC0E /* AAPLRendererAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7DCA4F812C411ED900E4EFE6 /* single_BC7.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */; };
+		7DCA4F822C411ED900E4EFE6 /* single_BC7.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */; };
+		7DCA4F832C411ED900E4EFE6 /* simpRocks.bin in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */; };
+		7DCA4F842C411ED900E4EFE6 /* simpRocks.bin in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */; };
+		7DCA4F852C411ED900E4EFE6 /* simpRocks.gltf in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */; };
+		7DCA4F862C411ED900E4EFE6 /* simpRocks.gltf in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */; };
 		B94A43F428380DF400C2D5C2 /* metal-cpp in Resources */ = {isa = PBXBuildFile; fileRef = B94A43F328380DF400C2D5C2 /* metal-cpp */; };
 		B95EA0B62832F59400DA2BE2 /* metal-cpp-extensions in Resources */ = {isa = PBXBuildFile; fileRef = B95EA0B42832F59400DA2BE2 /* metal-cpp-extensions */; };
 		B9C635C6285BCDA100BF4C86 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9C635C5285BCDA100BF4C86 /* MetalKit.framework */; };
@@ -35,7 +41,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0E22C05581DAF829526CA917 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE.txt; sourceTree = "<group>"; };
+		0E22C05581DAF829526CA917 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		47C7BD2C27B354810044082A /* AAPLShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLShaderTypes.h; sourceTree = "<group>"; };
 		47C7BD2D27B6044E0044082A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		47FCC78E2785212B0089AEE0 /* MeshShadersMetalCPP-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MeshShadersMetalCPP-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,7 +57,15 @@
 		47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AAPLShaders.metal; sourceTree = "<group>"; };
 		71E8C2042786622F00F6CC0E /* AAPLRendererAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLRendererAdapter.h; sourceTree = "<group>"; };
 		71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLRendererAdapter.mm; sourceTree = "<group>"; };
-		AB39788FA4CA4B2383CB3997 /* ACKNOWLEDGEMENTS.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = ACKNOWLEDGEMENTS.txt; sourceTree = "<group>"; };
+		7DCA4EAD2C411EA400E4EFE6 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		7DCA4EAE2C411EA400E4EFE6 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		7DCA4EAF2C411EA400E4EFE6 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		7DCA4EB02C411EA400E4EFE6 /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
+		7DCA4EB12C411EA400E4EFE6 /* load_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = load_gltf.h; sourceTree = "<group>"; };
+		7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */ = {isa = PBXFileReference; lastKnownFileType = file; path = single_BC7.ktx; sourceTree = "<group>"; };
+		7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = simpRocks.bin; sourceTree = "<group>"; };
+		7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpRocks.gltf; sourceTree = "<group>"; };
+		AB39788FA4CA4B2383CB3997 /* ACKNOWLEDGEMENTS.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = ACKNOWLEDGEMENTS.txt; sourceTree = "<group>"; };
 		B94A43F328380DF400C2D5C2 /* metal-cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "metal-cpp"; sourceTree = SOURCE_ROOT; };
 		B95EA0B42832F59400DA2BE2 /* metal-cpp-extensions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "metal-cpp-extensions"; sourceTree = SOURCE_ROOT; };
 		B9C635C5285BCDA100BF4C86 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
@@ -63,7 +77,7 @@
 		B9EE81AD2892FD5500888F42 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.0.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = DEVELOPER_DIR; };
 		B9EE81AF2892FDAE00888F42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		B9EE81B12892FDB800888F42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		DB55E512C4F33A4499732578 /* SampleCode.xcconfig */ = {isa = PBXFileReference; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
+		DB55E512C4F33A4499732578 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +139,7 @@
 		47FCC7852785212B0089AEE0 = {
 			isa = PBXGroup;
 			children = (
+				7DCA4F7B2C411ED900E4EFE6 /* assets */,
 				47C7BD2D27B6044E0044082A /* README.md */,
 				47FCC7902785212B0089AEE0 /* MeshShadersMetalCPP */,
 				47FCC78F2785212B0089AEE0 /* Products */,
@@ -146,6 +161,7 @@
 		47FCC7902785212B0089AEE0 /* MeshShadersMetalCPP */ = {
 			isa = PBXGroup;
 			children = (
+				7DCA4EAC2C411EA400E4EFE6 /* gltfLoader */,
 				474E8F8727A217840065B6E1 /* Adapter */,
 				474E8F8827A217970065B6E1 /* Renderer */,
 				474E8F8927A217AF0065B6E1 /* Application */,
@@ -174,13 +190,50 @@
 			name = Configuration;
 			sourceTree = "<group>";
 		};
+		7DCA4EAC2C411EA400E4EFE6 /* gltfLoader */ = {
+			isa = PBXGroup;
+			children = (
+				7DCA4EAD2C411EA400E4EFE6 /* json.hpp */,
+				7DCA4EAE2C411EA400E4EFE6 /* stb_image_write.h */,
+				7DCA4EAF2C411EA400E4EFE6 /* stb_image.h */,
+				7DCA4EB02C411EA400E4EFE6 /* tiny_gltf.h */,
+				7DCA4EB12C411EA400E4EFE6 /* load_gltf.h */,
+			);
+			path = gltfLoader;
+			sourceTree = "<group>";
+		};
+		7DCA4F7B2C411ED900E4EFE6 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				7DCA4F7C2C411ED900E4EFE6 /* textures */,
+				7DCA4F7E2C411ED900E4EFE6 /* scenes */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		7DCA4F7C2C411ED900E4EFE6 /* textures */ = {
+			isa = PBXGroup;
+			children = (
+				7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */,
+			);
+			path = textures;
+			sourceTree = "<group>";
+		};
+		7DCA4F7E2C411ED900E4EFE6 /* scenes */ = {
+			isa = PBXGroup;
+			children = (
+				7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */,
+				7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */,
+			);
+			path = scenes;
+			sourceTree = "<group>";
+		};
 		80DBC87BE2285CB027F537C1 /* LICENSE */ = {
 			isa = PBXGroup;
 			children = (
 				0E22C05581DAF829526CA917 /* LICENSE.txt */,
 				AB39788FA4CA4B2383CB3997 /* ACKNOWLEDGEMENTS.txt */,
 			);
-			name = LICENSE;
 			path = LICENSE;
 			sourceTree = "<group>";
 		};
@@ -284,8 +337,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DCA4F852C411ED900E4EFE6 /* simpRocks.gltf in Resources */,
 				B94A43F428380DF400C2D5C2 /* metal-cpp in Resources */,
 				B95EA0B62832F59400DA2BE2 /* metal-cpp-extensions in Resources */,
+				7DCA4F812C411ED900E4EFE6 /* single_BC7.ktx in Resources */,
+				7DCA4F832C411ED900E4EFE6 /* simpRocks.bin in Resources */,
 				B9D3A5B12825AA16009D2405 /* Assets.xcassets in Resources */,
 				47FCC79B2785212E0089AEE0 /* Main.storyboard in Resources */,
 			);
@@ -295,8 +351,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DCA4F822C411ED900E4EFE6 /* single_BC7.ktx in Resources */,
+				7DCA4F842C411ED900E4EFE6 /* simpRocks.bin in Resources */,
 				B9EE81B32892FDD400888F42 /* metal-cpp in Resources */,
 				B9EE819F2892F5F600888F42 /* LaunchScreen.storyboard in Resources */,
+				7DCA4F862C411ED900E4EFE6 /* simpRocks.gltf in Resources */,
 				B9EE819C2892F5F600888F42 /* Assets.xcassets in Resources */,
 				B9EE819A2892F5F500888F42 /* Main.storyboard in Resources */,
 				B9EE81B42892FDD600888F42 /* metal-cpp-extensions in Resources */,
@@ -364,7 +423,6 @@
 /* Begin XCBuildConfiguration section */
 		47FCC79F2785212E0089AEE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_NONNULL = NO;
@@ -425,7 +483,6 @@
 		};
 		47FCC7A02785212E0089AEE0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_NONNULL = NO;
@@ -479,14 +536,13 @@
 		};
 		47FCC7A22785212E0089AEE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = MeshShadersMetalCPP/Application/macOS/MeshShadersMetalCPP.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -496,6 +552,8 @@
 				HEADER_SEARCH_PATHS = (
 					"metal-cpp",
 					"metal-cpp-extensions",
+					gltfLoader,
+					Renderer,
 				);
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -504,6 +562,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
 				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.MeshShadersMetalCPP-macOS${SAMPLE_CODE_DISAMBIGUATOR}";
@@ -515,14 +574,13 @@
 		};
 		47FCC7A32785212E0089AEE0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = MeshShadersMetalCPP/Application/macOS/MeshShadersMetalCPP.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -540,6 +598,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
 				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.MeshShadersMetalCPP-macOS${SAMPLE_CODE_DISAMBIGUATOR}";
@@ -551,7 +610,6 @@
 		};
 		B9EE81A22892F5F600888F42 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -591,7 +649,6 @@
 		};
 		B9EE81A32892F5F600888F42 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB55E512C4F33A4499732578 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
