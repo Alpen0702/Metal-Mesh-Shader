@@ -9,6 +9,7 @@ The renderer's mesh shader implementation that draws bicubic Bezier patches.
 #include <simd/simd.h>
 #include <vector>
 
+#include "gltfLoader/load_gltf.h"
 #include "AAPLRenderer.hpp"
 
 constexpr bool _useMultisampleAntialiasing = true;
