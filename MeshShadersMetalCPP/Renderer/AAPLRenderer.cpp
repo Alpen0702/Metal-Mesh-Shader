@@ -164,6 +164,7 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeShared);
     _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeShared);
     _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeShared);
+    _pInstanceDataBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLInstanceData), MTL::ResourceStorageModeShared);
     
     
     //loadGLTF("/Users/liyangyang/Desktop/leiluo/Git\ Mesh\ Shader/Metal-Mesh-Shader/assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
@@ -174,6 +175,7 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     buildShaders();
     makeMeshlets();
     makeMeshletColors();
+    prepareInstanceData();
 }
 
 /// Releases the renderer's GPU resources, including buffers and pipeline states.
@@ -186,6 +188,7 @@ AAPLRenderer::~AAPLRenderer()
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
     _pMeshInfoBuffer->release();
+    _pInstanceDataBuffer->release();
     _pMeshColorsBuffer->release();
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
         _pTransformsBuffer[i]->release();
@@ -305,6 +308,43 @@ void AAPLRenderer::makeMeshletColors()
     }
 }
 
+void AAPLRenderer::prepareInstanceData()
+{
+    int instanceCount = 1000;
+    std::vector<InstanceData> instance_data(instanceCount);
+
+    std::default_random_engine              rnd_generator(static_cast<unsigned>(time(nullptr)));
+    std::uniform_real_distribution<float>   uniform_dist(0.0, 1.0);
+
+    // Distribute rocks randomly on two different rings
+    for (auto i = 0; i < instanceCount / 2; i++)
+    {
+        simd_float2 ring0{1.0f, 2.0f};
+        simd_float2 ring1{2, 3.5f};
+
+        float rho, theta;
+        // Inner ring
+
+        rho                       = sqrt((pow(ring0[1], 2.0f) - pow(ring0[0], 2.0f)) * uniform_dist(rnd_generator) + pow(ring0[0], 2.0f));
+        theta                     = 2.0f * 3.14 * uniform_dist(rnd_generator);
+        instance_data[i].pos      = simd_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
+        instance_data[i].rot      = simd_float3(0, 0, 0);
+        instance_data[i].scale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
+        instance_data[i].instanceIndex = i;
+        instance_data[i].scale *= 0.75f;
+
+        // Outer ring
+        rho                                                                 = sqrt((pow(ring1[1], 2.0f) - pow(ring1[0], 2.0f)) * uniform_dist(rnd_generator) + pow(ring1[0], 2.0f));
+        theta                                                               = 2.0f * 3.14 * uniform_dist(rnd_generator);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].pos      = simd_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].rot      =  simd_float3(0, 0, 0);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].scale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].instanceIndex = static_cast<size_t>(i + instanceCount / 2);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].scale *= 0.75f;
+    }
+    memcpy(_pInstanceDataBuffer->contents(), instance_data.data(), sizeof(AAPLInstanceData) * instanceCount);
+}
+
 /// Updates the object transform matrix state before other methods encode any render commands.
 void AAPLRenderer::updateStage()
 {
@@ -362,6 +402,8 @@ void AAPLRenderer::draw(MTK::View* pView)
     pRenderEncoder->setObjectBuffer(_pMeshColorsBuffer, 0, AAPLBufferIndexMeshColor);
     pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
     pRenderEncoder->setObjectBytes(&lodChoice, 4, AAPLBufferIndexLODChoice);
+
+    pRenderEncoder->setObjectBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
 
     // Pass data to the mesh stage.
     pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);

@@ -25,7 +25,8 @@ typedef enum BufferIndex : int32_t
     AAPLBufferViewProjectionMatrix = 4,
     AAPLBufferIndexTransforms = 5,
     AAPLBufferIndexMeshColor = 6,
-    AAPLBufferIndexLODChoice = 7
+    AAPLBufferIndexLODChoice = 7,
+    AAPLBufferInstanceData = 8
 } BufferIndex;
 
 typedef struct AAPLVertex
@@ -59,6 +60,14 @@ typedef struct AAPLMeshInfo
     AAPLIndexRange lod2;
     AAPLIndexRange lod3;
 } AAPLMeshInfo;
+
+typedef struct AAPLInstanceData
+{
+    simd_float3 instancePos;
+    simd_float3 instanceRot;
+    simd_float instanceScale;
+    uint16_t instanceIndex;
+} AAPLInstanceData;
 
 /// Declare the constant data for the entire frame in this structure.
 typedef struct

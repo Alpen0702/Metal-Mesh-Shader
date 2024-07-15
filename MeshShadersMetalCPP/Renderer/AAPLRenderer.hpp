@@ -44,6 +44,7 @@ private:
     MTL::Buffer* _pMeshVerticesBuffer;
     MTL::Buffer* _pMeshIndicesBuffer;
     MTL::Buffer* _pMeshInfoBuffer;
+    MTL::Buffer* _pInstanceDataBuffer;
 
     matrix_float4x4 _projectionMatrix;
     float degree;
@@ -51,8 +52,10 @@ private:
     std::vector<AAPLVertex> meshVertices;
     std::vector<AAPLIndexType> meshIndices;
     std::vector<AAPLMeshInfo> meshInfo;
+    std::vector<AAPLInstanceData> instanceData;
     
     void updateStage();
     void makeMeshlets();
     void makeMeshletColors();
+    void prepareInstanceData();
 };

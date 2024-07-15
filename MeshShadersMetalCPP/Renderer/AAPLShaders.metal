@@ -51,6 +51,7 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
                                    constant float3*     colors               [[buffer(AAPLBufferIndexMeshColor)]],
                                    constant float4x4&   viewProjectionMatrix [[buffer(AAPLBufferViewProjectionMatrix)]],
                                    constant uint&       lod                  [[buffer(AAPLBufferIndexLODChoice)]],
+                                   constant AAPLInstanceData* instanceData   [[buffer(AAPLBufferInstanceData)]],
                                    uint3                positionInGrid       [[threadgroup_position_in_grid]])
 {
     // threadIndex is the object index.
@@ -66,12 +67,9 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
     uint startIndex = meshInfo.lod1.startIndex;
     uint startVertexIndex = meshInfo.lod1.startVertexIndex;
     
-    // Adjust parameters if using a lower level of detail.
-    if (lod == 0)
-    {
-        payload.primitiveCount = meshInfo.lod1.primitiveCount;
-        payload.vertexCount = meshInfo.lod1.vertexCount;
-    }
+    payload.primitiveCount = meshInfo.lod1.primitiveCount;
+    payload.vertexCount = meshInfo.lod1.vertexCount;
+
 
     // Copy the triangle indices into the payload.
     for (uint i = 0; i < payload.primitiveCount*3; i++)
@@ -86,7 +84,7 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
     }
     
     // Concatenate the view projection matrix to the model transform matrix.
-    payload.transform = viewProjectionMatrix * transforms[threadIndex];
+    payload.transform = viewProjectionMatrix;
 
     // Set the output submesh count for the mesh shader.
     // Because the mesh shader is only producing one mesh, the threadgroup grid size is 1 x 1 x 1.
@@ -108,7 +106,8 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
     if (lid < payload.vertexCount)
     {
         vertexOut v;
-        float4 position = float4(payload.vertices[lid].position.xyz, 1.0f);
+        float4 position = float4(payload.vertices[lid].position.xyz * instanceData[lid].instanceScale + instanceData[lid].instancePos, 1.0f);
+
         v.position = payload.transform * position;
         v.normal = normalize(payload.vertices[lid].normal.xyz);
         output.set_vertex(lid, v);
