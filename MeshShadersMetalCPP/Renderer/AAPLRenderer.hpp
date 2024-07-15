@@ -36,7 +36,7 @@ private:
     
     MTL::Device* _pDevice;
     MTL::CommandQueue* _pCommandQueue;
-    MTL::RenderPipelineState* _pRenderPipelineState[3];
+    MTL::RenderPipelineState* _pRenderPipelineState;
     MTL::DepthStencilState* _pDepthStencilState;
     MTL::Buffer* _pTransformsBuffer[AAPLMaxFramesInFlight];
 

@@ -132,37 +132,6 @@ simd_float3 bicubicPatch3(int shape, float u, float v)
     return simd_make_float3(p.x, p.y, p.z);
 }
 
-/// Calculates the vertex data for a bicubic patch and returns the number of vertices the method adds to the array.
-size_t makePatchVertices(int shape, size_t segmentsX, size_t segmentsY, std::vector<AAPLVertex>& vertices)
-{
-    // Resize the vertex array and check that it meets the size limitations.
-    size_t vertexCount = segmentsX * segmentsY;
-
-    for (size_t j = 0; j < segmentsY; j++)
-    {
-        for (size_t i = 0; i < segmentsX; i++)
-        {
-            AAPLVertex vtx;
-            float u = i / float(segmentsX - 1);
-            float v = j / float(segmentsY - 1);
-            vtx.position = bicubicPatch(shape, u, v);
-            simd_float3 u1 = bicubicPatch3(shape, u - 0.01f, v);
-            simd_float3 u2 = bicubicPatch3(shape, u + 0.01f, v);
-            simd_float3 v1 = bicubicPatch3(shape, u, v - 0.01f);
-            simd_float3 v2 = bicubicPatch3(shape, u, v + 0.01f);
-            simd_float3 du = u2 - u1;
-            simd_float3 dv = v2 - v1;
-            simd_float3 N = simd_normalize(simd_cross(du, dv));
-            vtx.normal = simd_make_float4(N.x, N.y, N.z, 0);
-            vtx.uv = simd_make_float2(i / float(segmentsX), j / float(segmentsY));
-            
-            vertices.push_back(vtx);
-        }
-    }
-    
-    return vertexCount;
-}
-
 /// Calculates the index data for a bicubic patch and returns the number of indices the method adds to the array.
 size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, std::vector<AAPLIndexType>& indices)
 {
@@ -197,20 +166,10 @@ size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, s
 /// Adds the indices of a bicubic patch indices to an array and sets the range of vertices the object shader needs to copy into the mesh shader payload.
 void addLODs(AAPLIndexRange& lod, size_t segX, size_t segY, std::vector<AAPLIndexType>& meshIndices)
 {
-    lod.startIndex = (uint32_t)meshIndices.size();
-    lod.lastIndex = lod.startIndex + (uint16_t)makePatchIndices(segX, segY, lod.startIndex, meshIndices);
-    lod.vertexCount = 0;
-    
-    // Determine the number of vertices for the LOD.
-    // This helps keep the number of transformed vertices low for small LODs.
-    for (size_t i = lod.startIndex; i < lod.lastIndex; i++)
-    {
-        lod.vertexCount = std::max<uint16_t>(lod.vertexCount, meshIndices[i]);
-    }
-    
-    // The vertex count is one more than the highest index that the system finds.
-    lod.vertexCount += 1;
-    
+    lod.startIndex = 0;
+    lod.lastIndex = 6;
+    lod.vertexCount = 4;
+        
     // Set the number of triangles.
     lod.primitiveCount = (lod.lastIndex - lod.startIndex) / 3;
 }
@@ -265,9 +224,7 @@ AAPLRenderer::~AAPLRenderer()
 {
     _pDevice->release();
     _pCommandQueue->release();
-    _pRenderPipelineState[0]->release();
-    _pRenderPipelineState[1]->release();
-    _pRenderPipelineState[2]->release();
+    _pRenderPipelineState->release();
     _pDepthStencilState->release();
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
@@ -301,26 +258,23 @@ void AAPLRenderer::buildShaders()
     pMeshDesc->setMaxTotalThreadsPerObjectThreadgroup(AAPLMaxTotalThreadsPerObjectThreadgroup);
     pMeshDesc->setMaxTotalThreadsPerMeshThreadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup);
 
-    for (size_t i = 0; i < 3; i++)
-    {
-        int topology = (int)i;
-        MTL::FunctionConstantValues* pConstantValues = MTL::FunctionConstantValues::alloc()->init();
-        pConstantValues->setConstantValue(&topology, MTL::DataTypeInt, AAPL_FUNCTION_CONSTANT_TOPOLOGY);
 
-        const char* meshShaders[3] = { "meshShaderMeshStageFunctionPoints", "meshShaderMeshStageFunctionLines", "meshShaderMeshStageFunction"};
-        MTL::Function* pMeshFn = pLibrary->newFunction(NS::String::string(meshShaders[i], UTF8StringEncoding), pConstantValues, &pError);
-        handleError(&pError);
-        pMeshDesc->setMeshFunction(pMeshFn);
+    int topology = 0;
+    MTL::FunctionConstantValues* pConstantValues = MTL::FunctionConstantValues::alloc()->init();
+    pConstantValues->setConstantValue(&topology, MTL::DataTypeInt, AAPL_FUNCTION_CONSTANT_TOPOLOGY);
 
-        MTL::Function* pObjectFn = pLibrary->newFunction(NS::String::string("meshShaderObjectStageFunction", UTF8StringEncoding), pConstantValues, &pError);
-        handleError(&pError);
-        pMeshDesc->setObjectFunction(pObjectFn);
+    MTL::Function* pMeshFn = pLibrary->newFunction(NS::String::string("meshShaderMeshStageFunction", UTF8StringEncoding), pConstantValues, &pError);
+    handleError(&pError);
+    pMeshDesc->setMeshFunction(pMeshFn);
 
-        _pRenderPipelineState[i] = _pDevice->newRenderPipelineState(pMeshDesc, MTL::PipelineOptionNone, nullptr, &pError);
-        pObjectFn->release();
-        pMeshFn->release();
-        pConstantValues->release();
-    }
+    MTL::Function* pObjectFn = pLibrary->newFunction(NS::String::string("meshShaderObjectStageFunction", UTF8StringEncoding), pConstantValues, &pError);
+    handleError(&pError);
+    pMeshDesc->setObjectFunction(pObjectFn);
+
+    _pRenderPipelineState = _pDevice->newRenderPipelineState(pMeshDesc, MTL::PipelineOptionNone, nullptr, &pError);
+    pObjectFn->release();
+    pMeshFn->release();
+    pConstantValues->release();
 
     // Set up the depth-stencil state object.
     MTL::DepthStencilDescriptor* depthStencilDesc = MTL::DepthStencilDescriptor::alloc()->init();
@@ -341,36 +295,19 @@ void AAPLRenderer::makeMeshlets()
 {
     size_t segX = AAPLNumPatchSegmentsX;
     size_t segY = AAPLNumPatchSegmentsY;
-    meshVertices.clear();
-    meshIndices.clear();
+
     meshInfo.resize(AAPLNumObjectsXYZ);
     for (int i = 0; i < AAPLNumObjectsXYZ; i++)
     {
         AAPLMeshInfo& mesh = meshInfo[i];
         mesh.patchIndex = i;
         mesh.color = simd_make_float4(1.0, 0.0, 1.0, 1.0);
-        mesh.numLODs = 3;
+        mesh.numLODs = 1;
         
-        if (mesh.numLODs >= 1)
-        {
-            mesh.lod1.startVertexIndex = (uint32_t)meshVertices.size();
-            mesh.vertexCount = (uint16_t)makePatchVertices(mesh.patchIndex, segX, segY, meshVertices);
-            addLODs(mesh.lod1, segX, segY, meshIndices);
-        }
-        
-        if (mesh.numLODs >= 2)
-        {
-            mesh.lod2.startVertexIndex = (uint32_t)meshVertices.size();
-            mesh.vertexCount += (uint16_t)makePatchVertices(mesh.patchIndex, 5, 5, meshVertices);
-            addLODs(mesh.lod2, 5, 5, meshIndices);
-        }
-        
-        if (mesh.numLODs >= 3)
-        {
-            mesh.lod3.startVertexIndex = (uint32_t)meshVertices.size();
-            mesh.vertexCount += (uint16_t)makePatchVertices(mesh.patchIndex, 3, 3, meshVertices);
-            addLODs(mesh.lod3, 3, 3, meshIndices);
-        }
+
+        mesh.lod1.startVertexIndex = (uint32_t)meshVertices.size();
+        addLODs(mesh.lod1, segX, segY, meshIndices);
+
     }
     
     // Tell Metal when the buffer contents change.
@@ -451,7 +388,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     updateStage();
 
     pRenderEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
-    pRenderEncoder->setRenderPipelineState(_pRenderPipelineState[topologyChoice]);
+    pRenderEncoder->setRenderPipelineState(_pRenderPipelineState);
     pRenderEncoder->setDepthStencilState(_pDepthStencilState);
 
     // Pass data to the object stage.
