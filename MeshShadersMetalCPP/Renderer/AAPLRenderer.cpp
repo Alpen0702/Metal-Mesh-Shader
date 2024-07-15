@@ -8,7 +8,10 @@ The renderer's mesh shader implementation that draws bicubic Bezier patches.
 #include <MetalKit/MetalKit.hpp>
 #include <simd/simd.h>
 #include <vector>
-
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "load_gltf.h"
 #include "AAPLRenderer.hpp"
 
@@ -245,7 +248,13 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeShared);
     _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeShared);
     _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeShared);
-    loadGLTF("simpRocks.gltf", meshVertices, meshIndices);
+    
+    
+    //loadGLTF("/Users/liyangyang/Desktop/leiluo/Git\ Mesh\ Shader/Metal-Mesh-Shader/assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
+    loadGLTF("assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
+
+    
+    
     buildShaders();
     makeMeshlets();
     makeMeshletColors();

@@ -31,7 +31,6 @@
 		B9EE81A72892F7B000888F42 /* AAPLAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7922785212B0089AEE0 /* AAPLAppDelegate.m */; };
 		B9EE81A92892F8C000888F42 /* AAPLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7952785212B0089AEE0 /* AAPLViewController.m */; };
 		B9EE81AB2892FD1F00888F42 /* AAPLRendererAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */; };
-		B9EE81AC2892FD2500888F42 /* AAPLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */; };
 		B9EE81AE2892FD5500888F42 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9EE81AD2892FD5500888F42 /* MetalKit.framework */; };
 		B9EE81B02892FDAE00888F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9EE81AF2892FDAE00888F42 /* Foundation.framework */; };
 		B9EE81B22892FDB800888F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9EE81B12892FDB800888F42 /* Foundation.framework */; };
@@ -52,7 +51,7 @@
 		47FCC79A2785212E0089AEE0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		47FCC79C2785212E0089AEE0 /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		47FCC79E2785212E0089AEE0 /* MeshShadersMetalCPP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeshShadersMetalCPP.entitlements; sourceTree = "<group>"; };
-		47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AAPLRenderer.cpp; sourceTree = "<group>"; };
+		47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = AAPLRenderer.cpp; sourceTree = "<group>"; };
 		47FCC7AC27852A730089AEE0 /* AAPLRenderer.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = AAPLRenderer.hpp; sourceTree = "<group>"; };
 		47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AAPLShaders.metal; sourceTree = "<group>"; };
 		71E8C2042786622F00F6CC0E /* AAPLRendererAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLRendererAdapter.h; sourceTree = "<group>"; };
@@ -302,7 +301,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				DefaultBuildSystemTypeForWorkspace = Latest;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = Apple;
 				TargetAttributes = {
 					47FCC78D2785212B0089AEE0 = {
@@ -383,7 +382,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9EE81B52892FFBC00888F42 /* AAPLShaders.metal in Sources */,
-				B9EE81AC2892FD2500888F42 /* AAPLRenderer.cpp in Sources */,
 				B9EE81AB2892FD1F00888F42 /* AAPLRendererAdapter.mm in Sources */,
 				B9EE81A92892F8C000888F42 /* AAPLViewController.m in Sources */,
 				B9EE81A62892F64700888F42 /* main.m in Sources */,
@@ -459,6 +457,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -519,6 +518,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

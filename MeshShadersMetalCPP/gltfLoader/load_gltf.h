@@ -21,8 +21,7 @@ void loadGLTF(const char* path, std::vector<AAPLVertex>& vertices, std::vector<A
 	tinygltf::TinyGLTF gltf_ctx;
 	std::string err;
 	std::string warn;
-	std::string input_filename(path);
-	std::string ext = GetFilePathExtension(input_filename);
+	std::string ext = GetFilePathExtension(path);
 
 	//gltf_ctx.SetStoreOriginalJSONForExtrasAndExtensions(
 	//	store_original_json_for_extras_and_extensions);
@@ -31,15 +30,20 @@ void loadGLTF(const char* path, std::vector<AAPLVertex>& vertices, std::vector<A
 	if (ext.compare("glb") == 0) {
 		std::cout << "Reading binary glTF" << std::endl;
 		// assume binary glTF.
-		ret = gltf_ctx.LoadBinaryFromFile(&model, &err, &warn, input_filename.c_str());
+		ret = gltf_ctx.LoadBinaryFromFile(&model, &err, &warn, path);
 	}
 	else {
 		std::cout << "Reading ASCII glTF" << std::endl;
 		// assume ascii glTF.
-		ret = gltf_ctx.LoadASCIIFromFile(&model, &err, &warn, input_filename.c_str());
+		ret = gltf_ctx.LoadASCIIFromFile(&model, &err, &warn, path);
 	}
-
-    std::cout << input_filename << std::endl;
+    
+    
+    if (path) {
+        std::cout << "File exists." << std::endl;
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
     
 	for (const auto& mesh : model.meshes) {
 		for (const auto& primitive : mesh.primitives) {
