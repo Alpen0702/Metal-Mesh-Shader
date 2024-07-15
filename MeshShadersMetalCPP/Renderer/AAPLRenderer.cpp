@@ -132,49 +132,6 @@ simd_float3 bicubicPatch3(int shape, float u, float v)
     return simd_make_float3(p.x, p.y, p.z);
 }
 
-/// Calculates the index data for a bicubic patch and returns the number of indices the method adds to the array.
-size_t makePatchIndices(size_t segmentsX, size_t segmentsY, size_t startIndex, std::vector<AAPLIndexType>& indices)
-{
-    // A patch contains (segmentsX - 1) * (segmentsY - 1) squares that need six triangle indices.
-    size_t indexCount = (segmentsX - 1) * (segmentsY - 1) * 6;
-
-    // Resize the indices array so it has enough space for the new indices.
-    indices.resize(indices.size() + indexCount);
-    
-    // Generate the indices.
-    size_t index = startIndex;
-    for (size_t j = 0; j < segmentsY-1; j++)
-    {
-        for (size_t i = 0; i < segmentsX-1; i++)
-        {
-            // The first part of the quad.
-            indices[index+0] = (uint16_t)(((j + 0) * segmentsX) + ((i + 1)));
-            indices[index+1] = (uint16_t)(((j + 1) * segmentsX) + ((i + 0)));
-            indices[index+2] = (uint16_t)(((j + 0) * segmentsX) + ((i + 0)));
-            // The opposite side of the quad.
-            indices[index+3] = (uint16_t)(((j + 1) * segmentsX) + ((i + 1)));
-            indices[index+4] = (uint16_t)(((j + 1) * segmentsX) + ((i + 0)));
-            indices[index+5] = (uint16_t)(((j + 0) * segmentsX) + ((i + 1)));
-
-            index += 6;
-        }
-    }
-    
-    return indexCount;
-}
-
-/// Adds the indices of a bicubic patch indices to an array and sets the range of vertices the object shader needs to copy into the mesh shader payload.
-void addLODs(AAPLIndexRange& lod, size_t segX, size_t segY, std::vector<AAPLIndexType>& meshIndices)
-{
-    lod.startIndex = 0;
-    lod.lastIndex = 6;
-    lod.vertexCount = 4;
-        
-    // Set the number of triangles.
-    lod.primitiveCount = (lod.lastIndex - lod.startIndex) / 3;
-}
-
-
 /// Check for errors with the given NSError and reset the pointer.
 void handleError(NS::Error** pError)
 {
@@ -305,8 +262,13 @@ void AAPLRenderer::makeMeshlets()
         mesh.numLODs = 1;
         
 
-        mesh.lod1.startVertexIndex = (uint32_t)meshVertices.size();
-        addLODs(mesh.lod1, segX, segY, meshIndices);
+        mesh.lod1.startVertexIndex = 0;
+        mesh.lod1.startIndex = 0;
+        mesh.lod1.lastIndex = 6;
+        mesh.lod1.vertexCount = 4;
+            
+        // Set the number of triangles.
+        mesh.lod1.primitiveCount = (mesh.lod1.lastIndex - mesh.lod1.startIndex) / 3;
 
     }
     
