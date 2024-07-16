@@ -50,22 +50,27 @@ typedef struct AAPLIndexRange
 
 typedef struct AAPLMeshInfo
 {
-    uint16_t numLODs{3};
-    uint16_t patchIndex{3};
     simd_float4 color;
     
-    uint16_t vertexCount{0};
+    uint32_t instanceCount{0};
+    uint32_t instanceOffset{0};
     
-    AAPLIndexRange lod1;
-    AAPLIndexRange lod2;
-    AAPLIndexRange lod3;
+    // This is the first offset into the indices array.
+    uint32_t startIndex{0};
+    // This is one past the first offset into the indices array.
+    uint32_t lastIndex{0};
+    // This is the index of the first vertex in the vertex array.
+    uint32_t startVertexIndex{0};
+    uint32_t vertexCount{0};
+    uint32_t primitiveCount{0};
+
 } AAPLMeshInfo;
 
 typedef struct AAPLInstanceData
 {
     simd_float3 instancePos;
     simd_float3 instanceRot;
-    simd_float instanceScale;
+    float instanceScale;
     uint16_t instanceIndex;
 } AAPLInstanceData;
 
@@ -78,16 +83,10 @@ typedef struct
 
 using AAPLIndexType = uint16_t;
 
-static constexpr constant uint32_t AAPLNumObjectsX = 16;
-static constexpr constant uint32_t AAPLNumObjectsY = 8;
-static constexpr constant uint32_t AAPLNumObjectsZ = 1;
-static constexpr constant uint32_t AAPLNumObjectsXY = AAPLNumObjectsX * AAPLNumObjectsY;
-static constexpr constant uint32_t AAPLNumObjectsXYZ = AAPLNumObjectsXY * AAPLNumObjectsZ;
+static constexpr constant uint32_t AAPLNumTasks = 140;
 
-static constexpr constant uint32_t AAPLNumPatchSegmentsX = 8;
-static constexpr constant uint32_t AAPLNumPatchSegmentsY = 8;
-
-static constexpr constant uint32_t AAPLMaxMeshletVertexCount = 64;
+static constexpr constant uint32_t AAPLMaxMeshletVertexCount = 183;
+static constexpr constant uint32_t AAPLMaxMeshletIndicesCount = 306;
 static constexpr constant uint32_t AAPLMaxPrimitiveCount = 126;
 
 static constexpr constant uint32_t AAPLMaxTotalThreadsPerObjectThreadgroup = 1;

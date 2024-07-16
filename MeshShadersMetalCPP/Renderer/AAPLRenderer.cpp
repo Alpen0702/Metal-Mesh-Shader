@@ -12,6 +12,7 @@ The renderer's mesh shader implementation that draws bicubic Bezier patches.
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <random>
 #include "load_gltf.h"
 #include "AAPLRenderer.hpp"
 
@@ -58,6 +59,17 @@ matrix_float4x4 matrix4x4_YRotate(float angleRadians)
         simd_make_float4(cosf(a), 0.0f, sinf(a), 0.0f),  // Row 1
         simd_make_float4(0.0f, 1.0f, 0.0f, 0.0f),        // Row 2
         simd_make_float4(-sinf(a), 0.0f, cosf(a), 0.0f), // Row 3
+        simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f));       // Row 4
+}
+
+/// Returns a rotation matrix.
+matrix_float4x4 matrix4x4_XRotate(float angleRadians)
+{
+    const float a = angleRadians;
+    return simd_matrix_from_rows(
+        simd_make_float4(1.0f, 0.0f, 0.0f, 0.0f),  // Row 1
+        simd_make_float4(0.0f, cosf(a), sinf(a), 0.0f),        // Row 2
+        simd_make_float4(0.0f, -sinf(a), cosf(a), 0.0f), // Row 3
         simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f));       // Row 4
 }
 
@@ -157,14 +169,13 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
 
     _pCommandQueue = _pDevice->newCommandQueue();
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
-        _pTransformsBuffer[i] = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(matrix_float4x4), MTL::ResourceStorageModeShared);
+        _pTransformsBuffer[i] = _pDevice->newBuffer(sizeof(matrix_float4x4), MTL::ResourceStorageModeShared);
     }
-    _pMeshColorsBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(vector_float3), MTL::ResourceStorageModeShared);
-    const size_t LODCount = 3;
-    _pMeshVerticesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount * LODCount, MTL::ResourceStorageModeShared);
-    _pMeshIndicesBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLIndexType) * AAPLMaxPrimitiveCount * 6 * LODCount, MTL::ResourceStorageModeShared);
-    _pMeshInfoBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLMeshInfo), MTL::ResourceStorageModeShared);
-    _pInstanceDataBuffer = _pDevice->newBuffer(AAPLNumObjectsXYZ * sizeof(AAPLInstanceData), MTL::ResourceStorageModeShared);
+    _pMeshColorsBuffer = _pDevice->newBuffer(sizeof(vector_float3), MTL::ResourceStorageModeShared);
+
+    _pMeshVerticesBuffer = _pDevice->newBuffer(sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount, MTL::ResourceStorageModeShared);
+    _pMeshIndicesBuffer = _pDevice->newBuffer(sizeof(AAPLIndexType) * AAPLMaxMeshletIndicesCount, MTL::ResourceStorageModeShared);
+    _pInstanceDataBuffer = _pDevice->newBuffer(sizeof(AAPLInstanceData) * instanceCount, MTL::ResourceStorageModeShared);
     
     
     //loadGLTF("/Users/liyangyang/Desktop/leiluo/Git\ Mesh\ Shader/Metal-Mesh-Shader/assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
@@ -187,7 +198,6 @@ AAPLRenderer::~AAPLRenderer()
     _pDepthStencilState->release();
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
-    _pMeshInfoBuffer->release();
     _pInstanceDataBuffer->release();
     _pMeshColorsBuffer->release();
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
@@ -253,25 +263,71 @@ void AAPLRenderer::buildShaders()
 /// Initializes the meshlet vertex data for all the bicubic patches.
 void AAPLRenderer::makeMeshlets()
 {
-    size_t segX = AAPLNumPatchSegmentsX;
-    size_t segY = AAPLNumPatchSegmentsY;
 
-    meshInfo.resize(AAPLNumObjectsXYZ);
-    for (int i = 0; i < AAPLNumObjectsXYZ; i++)
+    meshInfo.resize(AAPLNumTasks);
+    for (int i = 0; i < AAPLNumTasks; i++)
     {
         AAPLMeshInfo& mesh = meshInfo[i];
-        mesh.patchIndex = i;
         mesh.color = simd_make_float4(1.0, 0.0, 1.0, 1.0);
-        mesh.numLODs = 1;
-        
 
-        mesh.lod1.startVertexIndex = 0;
-        mesh.lod1.startIndex = 0;
-        mesh.lod1.lastIndex = 6;
-        mesh.lod1.vertexCount = 4;
+        mesh.startVertexIndex = 4;
+        mesh.startIndex = 6;
+        mesh.lastIndex = 198;
+        mesh.vertexCount = 103;
+        
+        mesh.startVertexIndex = 0;
+        mesh.startIndex = 0;
+        mesh.lastIndex = 6;
+        mesh.vertexCount = 4;
+
+        if (i < 50)
+        {
+            mesh.instanceCount = 300;
+            mesh.instanceOffset = 300 * i;
+        }
+        else if (i < 100)
+        {
+            mesh.startVertexIndex = 0;
+            mesh.startIndex = 0;
+            mesh.lastIndex = 6;
+            mesh.vertexCount = 4;
+            
+            mesh.instanceCount = 300;
+            mesh.instanceOffset = 300 * i;
+        }
+        else if (i < 107)
+        {
+            mesh.instanceCount = 1;
+            mesh.instanceOffset = 30000 + i;
+        }
+        else if (i < 122)
+        {
+            mesh.instanceCount = 3;
+            mesh.instanceOffset = 30007 + (i - 107) * 3;
+        }
+        else if (i < 137)
+        {
+            mesh.instanceCount = 30;
+            mesh.instanceOffset = 30052 + (i - 122) * 30;
+        }
+        else if (i < 138)
+        {
+            mesh.instanceCount = 300;
+            mesh.instanceOffset = 30502;
+        }
+        else if (i < 139)
+        {
+            mesh.instanceCount = 0;
+            mesh.instanceOffset = 30802;
+        }
+        else if (i < 140)
+        {
+            mesh.instanceCount = 0;
+            mesh.instanceOffset = 33802;
+        }
             
         // Set the number of triangles.
-        mesh.lod1.primitiveCount = (mesh.lod1.lastIndex - mesh.lod1.startIndex) / 3;
+        mesh.primitiveCount = (mesh.lastIndex - mesh.startIndex) / 3;
 
     }
     
@@ -280,7 +336,6 @@ void AAPLRenderer::makeMeshlets()
     assert(_pMeshIndicesBuffer->length() >= meshIndices.size() * sizeof(AAPLIndexType));
     memcpy(_pMeshVerticesBuffer->contents(), meshVertices.data(), sizeof(AAPLVertex) * meshVertices.size());
     memcpy(_pMeshIndicesBuffer->contents(), meshIndices.data(), sizeof(AAPLIndexType) * meshIndices.size());
-    memcpy(_pMeshInfoBuffer->contents(), meshInfo.data(), sizeof(AAPLMeshInfo) * meshInfo.size());
 }
 
 /// Sets up the color for each bicubic patch.
@@ -290,15 +345,15 @@ void AAPLRenderer::makeMeshletColors()
 
     int count = 0;
 
-    float x_div = 1.0f / (AAPLNumObjectsX + 1);
-    float y_div = 1.0f / AAPLNumObjectsY;
-    float z_div = 1.0f / AAPLNumObjectsZ;
+    float x_div = 1.0f / 2;
+    float y_div = 1.0f / 1;
+    float z_div = 1.0f / 1;
 
-    for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
+    for (size_t z = 0; z < 1; ++z)
     {
-        for (size_t y = 0; y < AAPLNumObjectsY; ++y)
+        for (size_t y = 0; y < 1; ++y)
         {
-            for (size_t x = 0; x < AAPLNumObjectsX; ++x)
+            for (size_t x = 0; x < 2; ++x)
             {
                 meshColors[count] = simd_make_float3((x + 1.0f) * x_div, y * y_div, (1.0f + z) * z_div);
                 meshColors[count] = simd_normalize(meshColors[count]) * 0.75f;
@@ -310,8 +365,7 @@ void AAPLRenderer::makeMeshletColors()
 
 void AAPLRenderer::prepareInstanceData()
 {
-    int instanceCount = 1000;
-    std::vector<InstanceData> instance_data(instanceCount);
+    std::vector<AAPLInstanceData> instance_data(instanceCount);
 
     std::default_random_engine              rnd_generator(static_cast<unsigned>(time(nullptr)));
     std::uniform_real_distribution<float>   uniform_dist(0.0, 1.0);
@@ -327,20 +381,20 @@ void AAPLRenderer::prepareInstanceData()
 
         rho                       = sqrt((pow(ring0[1], 2.0f) - pow(ring0[0], 2.0f)) * uniform_dist(rnd_generator) + pow(ring0[0], 2.0f));
         theta                     = 2.0f * 3.14 * uniform_dist(rnd_generator);
-        instance_data[i].pos      = simd_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
-        instance_data[i].rot      = simd_float3(0, 0, 0);
-        instance_data[i].scale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
+        instance_data[i].instancePos      = simd_make_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
+        instance_data[i].instanceRot      = simd_make_float3(0, 0, 0);
+        instance_data[i].instanceScale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
         instance_data[i].instanceIndex = i;
-        instance_data[i].scale *= 0.75f;
+        instance_data[i].instanceScale *= 0.75f;
 
         // Outer ring
         rho                                                                 = sqrt((pow(ring1[1], 2.0f) - pow(ring1[0], 2.0f)) * uniform_dist(rnd_generator) + pow(ring1[0], 2.0f));
         theta                                                               = 2.0f * 3.14 * uniform_dist(rnd_generator);
-        instance_data[static_cast<size_t>(i + instanceCount / 2)].pos      = simd_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
-        instance_data[static_cast<size_t>(i + instanceCount / 2)].rot      =  simd_float3(0, 0, 0);
-        instance_data[static_cast<size_t>(i + instanceCount / 2)].scale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].instancePos      = simd_make_float3(rho * cos(theta), uniform_dist(rnd_generator) * 0.5f - 0.25f, rho * sin(theta));
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].instanceRot      =  simd_make_float3(0, 0, 0);
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].instanceScale    = 1.5f + uniform_dist(rnd_generator) - uniform_dist(rnd_generator);
         instance_data[static_cast<size_t>(i + instanceCount / 2)].instanceIndex = static_cast<size_t>(i + instanceCount / 2);
-        instance_data[static_cast<size_t>(i + instanceCount / 2)].scale *= 0.75f;
+        instance_data[static_cast<size_t>(i + instanceCount / 2)].instanceScale *= 0.75f;
     }
     memcpy(_pInstanceDataBuffer->contents(), instance_data.data(), sizeof(AAPLInstanceData) * instanceCount);
 }
@@ -354,15 +408,15 @@ void AAPLRenderer::updateStage()
     int count = 0;
     degree += rotationSpeed * M_PI / 180.0f;
 
-    for (size_t z = 0; z < AAPLNumObjectsZ; ++z)
+    for (size_t z = 0; z < 1; ++z)
     {
         float z_pos = -12.0f - z * 2.0f;
-        for (size_t y = 0; y < AAPLNumObjectsY; ++y)
+        for (size_t y = 0; y < 1; ++y)
         {
-            float y_pos = 2 * (y - (float(AAPLNumObjectsY - 1) / 2));
-            for (size_t x = 0; x < AAPLNumObjectsX; ++x)
+            float y_pos = 2 * (y - (float(1 - 1) / 2));
+            for (size_t x = 0; x < 2; ++x)
             {
-                float x_pos = 2 * (x - (float(AAPLNumObjectsX - 1) / 2));
+                float x_pos = 2 * (x - (float(2 - 1) / 2));
                 transforms[count] = matrix_multiply(matrix4x4_translation(x_pos, y_pos, z_pos), matrix4x4_YRotate(degree));
                 count++;
             }
@@ -383,7 +437,9 @@ void AAPLRenderer::draw(MTK::View* pView)
     pRenderPassDesc->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(0.65f, 0.75f, 0.85f, 1.0f));
     MTL::RenderCommandEncoder* pRenderEncoder = pCommandBuffer->renderCommandEncoder(pRenderPassDesc);
 
-    matrix_float4x4 viewMatrix = matrix4x4_translation(0, offsetY, -10 + 10 * offsetZ);
+    //matrix_float4x4 viewMatrix = matrix_multiply(matrix4x4_XRotate(0.9), matrix4x4_translation(0, 4, 9));
+    matrix_float4x4 viewMatrix = matrix_multiply(matrix4x4_XRotate(1.5), matrix4x4_translation(0, 4, 12));
+
     matrix_float4x4 viewProjectionMatrix = matrix_multiply(_projectionMatrix, viewMatrix);
 
     // Update the object positions.
@@ -396,14 +452,13 @@ void AAPLRenderer::draw(MTK::View* pView)
     // Pass data to the object stage.
     pRenderEncoder->setObjectBuffer(_pMeshVerticesBuffer, 0, AAPLBufferIndexMeshVertices);
     pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
-    pRenderEncoder->setObjectBuffer(_pMeshInfoBuffer, 0, AAPLBufferIndexMeshInfo);
     
     pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
     pRenderEncoder->setObjectBuffer(_pMeshColorsBuffer, 0, AAPLBufferIndexMeshColor);
     pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
     pRenderEncoder->setObjectBytes(&lodChoice, 4, AAPLBufferIndexLODChoice);
 
-    pRenderEncoder->setObjectBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
+    pRenderEncoder->setMeshBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
 
     // Pass data to the mesh stage.
     pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
@@ -417,9 +472,13 @@ void AAPLRenderer::draw(MTK::View* pView)
     /// The parameter `positionInGrid` (`threadgroup_position_in_grid`) in the shader addresses the submesh.
     /// This tells the object shader the index of the transform for the submesh.
     /// The mesh shader uses the payload to generate the primitives (points, lines, or triangles).
-    pRenderEncoder->drawMeshThreadgroups(MTL::Size(AAPLNumObjectsX, AAPLNumObjectsY, AAPLNumObjectsZ),
-                                         MTL::Size(AAPLMaxTotalThreadsPerObjectThreadgroup, 1, 1),
-                                         MTL::Size(AAPLMaxTotalThreadsPerMeshThreadgroup, 1, 1));
+    for (int i = 0; i < AAPLNumTasks; i++)
+    {
+        pRenderEncoder->setObjectBytes(&meshInfo[i], sizeof(AAPLMeshInfo), AAPLBufferIndexMeshInfo);
+        pRenderEncoder->drawMeshThreadgroups(MTL::Size(1, 1, 1),
+                                             MTL::Size(1, 1, 1),
+                                             MTL::Size(126, 1, 1));
+    }
 
     pRenderEncoder->endEncoding();
     pCommandBuffer->presentDrawable(pView->currentDrawable());

@@ -14,9 +14,10 @@ struct payload_t
     AAPLVertex vertices[AAPLMaxMeshletVertexCount];
     float4x4 transform;
     float3 color;
-    uint8_t lod;
+
     uint32_t primitiveCount;
-    uint8_t vertexCount;
+    uint32_t vertexCount;
+    uint32_t instanceOffset;
 
     /// The array of vertex indices for the meshlet into the vertices array.
     ///
@@ -44,37 +45,30 @@ using AAPLTriangleMeshType = metal::mesh<vertexOut, primOut, AAPLMaxMeshletVerte
 [[object, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerObjectThreadgroup), max_total_threadgroups_per_mesh_grid(AAPLMaxThreadgroupsPerMeshGrid)]]
 void meshShaderObjectStageFunction(object_data payload_t& payload            [[payload]],
                                    mesh_grid_properties meshGridProperties,
-                                   constant AAPLMeshInfo* meshes             [[buffer(AAPLBufferIndexMeshInfo)]],
+                                   constant AAPLMeshInfo& meshInfo           [[buffer(AAPLBufferIndexMeshInfo)]],
                                    constant AAPLVertex* vertices             [[buffer(AAPLBufferIndexMeshVertices)]],
                                    constant AAPLIndexType* indices           [[buffer(AAPLBufferIndexMeshIndices)]],
                                    constant float4x4*   transforms           [[buffer(AAPLBufferIndexTransforms)]],
                                    constant float3*     colors               [[buffer(AAPLBufferIndexMeshColor)]],
                                    constant float4x4&   viewProjectionMatrix [[buffer(AAPLBufferViewProjectionMatrix)]],
                                    constant uint&       lod                  [[buffer(AAPLBufferIndexLODChoice)]],
-                                   constant AAPLInstanceData* instanceData   [[buffer(AAPLBufferInstanceData)]],
                                    uint3                positionInGrid       [[threadgroup_position_in_grid]])
 {
-    // threadIndex is the object index.
-    uint threadIndex = (AAPLNumObjectsXY * positionInGrid.z) + (AAPLNumObjectsX * positionInGrid.y) + positionInGrid.x;
-    if (threadIndex >= AAPLNumObjectsXYZ || threadIndex >= 1024)
-        return;
+       
+    payload.color = colors[0];
     
-    constant AAPLMeshInfo& meshInfo = meshes[threadIndex];
+    uint startIndex = meshInfo.startIndex;
+    uint startVertexIndex = meshInfo.startVertexIndex;
     
-    payload.lod = 0;
-    payload.color = colors[threadIndex];
-    
-    uint startIndex = meshInfo.lod1.startIndex;
-    uint startVertexIndex = meshInfo.lod1.startVertexIndex;
-    
-    payload.primitiveCount = meshInfo.lod1.primitiveCount;
-    payload.vertexCount = meshInfo.lod1.vertexCount;
+    payload.primitiveCount = meshInfo.primitiveCount;
+    payload.vertexCount = meshInfo.vertexCount;
+    payload.instanceOffset = meshInfo.instanceOffset;
 
 
     // Copy the triangle indices into the payload.
-    for (uint i = 0; i < payload.primitiveCount*3; i++)
+    for (uint i = 0; i < payload.primitiveCount * 3; i++)
     {
-        payload.indices[i] = indices[startIndex + i];
+        payload.indices[i] = indices[startIndex + i] - startVertexIndex;
     }
 
     // Copy the vertex data into the payload.
@@ -84,17 +78,21 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
     }
     
     // Concatenate the view projection matrix to the model transform matrix.
-    payload.transform = viewProjectionMatrix;
+    payload.transform = viewProjectionMatrix * transforms[0];
 
     // Set the output submesh count for the mesh shader.
     // Because the mesh shader is only producing one mesh, the threadgroup grid size is 1 x 1 x 1.
     meshGridProperties.set_threadgroups_per_grid(uint3(1, 1, 1));
+    //if(meshInfo.instanceCount==0)
+        //meshGridProperties.set_threadgroups_per_grid(uint3(1500, 1, 1));
+
 }
 
 /// The mesh stage function that generates a triangle mesh.
-[[mesh, max_total_threads_per_threadgroup(AAPLMaxTotalThreadsPerMeshThreadgroup)]]
+[[mesh, max_total_threads_per_threadgroup(AAPLMaxPrimitiveCount)]]
 void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
                                  const object_data payload_t& payload [[payload]],
+                                 constant AAPLInstanceData* instanceData   [[buffer(AAPLBufferInstanceData)]],
                                  uint lid [[thread_index_in_threadgroup]],
                                  uint tid [[threadgroup_position_in_grid]])
 {
@@ -106,7 +104,8 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
     if (lid < payload.vertexCount)
     {
         vertexOut v;
-        float4 position = float4(payload.vertices[lid].position.xyz * instanceData[lid].instanceScale + instanceData[lid].instancePos, 1.0f);
+        int instanceID = tid + payload.instanceOffset;
+        float4 position = float4(payload.vertices[lid].position.xyz * instanceData[instanceID].instanceScale + instanceData[instanceID].instancePos, 1.0f);
 
         v.position = payload.transform * position;
         v.normal = normalize(payload.vertices[lid].normal.xyz);

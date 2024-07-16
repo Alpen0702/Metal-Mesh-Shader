@@ -33,6 +33,7 @@ public:
 private:
     static constexpr size_t AAPLMaxFramesInFlight = 3;
     size_t _curFrameInFlight{0};
+    int instanceCount = 43802;
     
     MTL::Device* _pDevice;
     MTL::CommandQueue* _pCommandQueue;
@@ -43,7 +44,6 @@ private:
     MTL::Buffer* _pMeshColorsBuffer;
     MTL::Buffer* _pMeshVerticesBuffer;
     MTL::Buffer* _pMeshIndicesBuffer;
-    MTL::Buffer* _pMeshInfoBuffer;
     MTL::Buffer* _pInstanceDataBuffer;
 
     matrix_float4x4 _projectionMatrix;
