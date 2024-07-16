@@ -21,12 +21,9 @@ typedef enum BufferIndex : int32_t
     AAPLBufferIndexMeshVertices = 0,
     AAPLBufferIndexMeshIndices = 1,
     AAPLBufferIndexMeshInfo = 2,
-    AAPLBufferIndexFrameData = 3,
-    AAPLBufferViewProjectionMatrix = 4,
-    AAPLBufferIndexTransforms = 5,
-    AAPLBufferIndexMeshColor = 6,
-    AAPLBufferIndexLODChoice = 7,
-    AAPLBufferInstanceData = 8
+    AAPLBufferViewProjectionMatrix = 3,
+    AAPLBufferIndexTransforms = 4,
+    AAPLBufferInstanceData = 5
 } BufferIndex;
 
 typedef struct AAPLVertex
@@ -35,18 +32,6 @@ typedef struct AAPLVertex
     simd_float4 normal;
     simd_float2 uv;
 } AAPLVertex;
-
-typedef struct AAPLIndexRange
-{
-    // This is the first offset into the indices array.
-    uint32_t startIndex{0};
-    // This is one past the first offset into the indices array.
-    uint32_t lastIndex{0};
-    // This is the index of the first vertex in the vertex array.
-    uint32_t startVertexIndex{0};
-    uint32_t vertexCount{0};
-    uint32_t primitiveCount{0};
-} AAPLIndexRange;
 
 typedef struct AAPLMeshInfo
 {

@@ -171,7 +171,6 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
         _pTransformsBuffer[i] = _pDevice->newBuffer(sizeof(matrix_float4x4), MTL::ResourceStorageModeShared);
     }
-    _pMeshColorsBuffer = _pDevice->newBuffer(sizeof(vector_float3), MTL::ResourceStorageModeShared);
 
     _pMeshVerticesBuffer = _pDevice->newBuffer(sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount, MTL::ResourceStorageModeShared);
     _pMeshIndicesBuffer = _pDevice->newBuffer(sizeof(AAPLIndexType) * AAPLMaxMeshletIndicesCount, MTL::ResourceStorageModeShared);
@@ -185,7 +184,6 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     
     buildShaders();
     makeMeshlets();
-    makeMeshletColors();
     prepareInstanceData();
 }
 
@@ -199,7 +197,6 @@ AAPLRenderer::~AAPLRenderer()
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
     _pInstanceDataBuffer->release();
-    _pMeshColorsBuffer->release();
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
         _pTransformsBuffer[i]->release();
     }
@@ -274,16 +271,12 @@ void AAPLRenderer::makeMeshlets()
         mesh.startIndex = 6;
         mesh.lastIndex = 198;
         mesh.vertexCount = 103;
-        
-        mesh.startVertexIndex = 0;
-        mesh.startIndex = 0;
-        mesh.lastIndex = 6;
-        mesh.vertexCount = 4;
 
         if (i < 50)
         {
             mesh.instanceCount = 300;
             mesh.instanceOffset = 300 * i;
+            mesh.color = simd_make_float4(0.0, 0.0, 1.0, 1.0);
         }
         else if (i < 100)
         {
@@ -294,36 +287,50 @@ void AAPLRenderer::makeMeshlets()
             
             mesh.instanceCount = 300;
             mesh.instanceOffset = 300 * i;
+            mesh.color = simd_make_float4(0.0, 1.0, 1.0, 1.0);
+
         }
         else if (i < 107)
         {
             mesh.instanceCount = 1;
             mesh.instanceOffset = 30000 + i;
+            mesh.color = simd_make_float4(0.0, 0.0, 0.0, 1.0);
+
         }
         else if (i < 122)
         {
             mesh.instanceCount = 3;
             mesh.instanceOffset = 30007 + (i - 107) * 3;
+            mesh.color = simd_make_float4(0.0, 1.0, 0.0, 1.0);
+
         }
         else if (i < 137)
         {
             mesh.instanceCount = 30;
             mesh.instanceOffset = 30052 + (i - 122) * 30;
+            mesh.color = simd_make_float4(1.0, 0.0, 1.0, 1.0);
+
         }
         else if (i < 138)
         {
             mesh.instanceCount = 300;
             mesh.instanceOffset = 30502;
+            mesh.color = simd_make_float4(1.0, 0.0, 0.0, 1.0);
+
         }
         else if (i < 139)
         {
-            mesh.instanceCount = 0;
+            mesh.instanceCount = 3000;
             mesh.instanceOffset = 30802;
+            mesh.color = simd_make_float4(1.0, 1.0, 1.0, 1.0);
+
         }
         else if (i < 140)
         {
-            mesh.instanceCount = 0;
+            mesh.instanceCount = 10000;
             mesh.instanceOffset = 33802;
+            mesh.color = simd_make_float4(1.0, 1.0, 0.0, 1.0);
+
         }
             
         // Set the number of triangles.
@@ -336,31 +343,6 @@ void AAPLRenderer::makeMeshlets()
     assert(_pMeshIndicesBuffer->length() >= meshIndices.size() * sizeof(AAPLIndexType));
     memcpy(_pMeshVerticesBuffer->contents(), meshVertices.data(), sizeof(AAPLVertex) * meshVertices.size());
     memcpy(_pMeshIndicesBuffer->contents(), meshIndices.data(), sizeof(AAPLIndexType) * meshIndices.size());
-}
-
-/// Sets up the color for each bicubic patch.
-void AAPLRenderer::makeMeshletColors()
-{
-    simd_float3* meshColors = reinterpret_cast<simd_float3*>(_pMeshColorsBuffer->contents());
-
-    int count = 0;
-
-    float x_div = 1.0f / 2;
-    float y_div = 1.0f / 1;
-    float z_div = 1.0f / 1;
-
-    for (size_t z = 0; z < 1; ++z)
-    {
-        for (size_t y = 0; y < 1; ++y)
-        {
-            for (size_t x = 0; x < 2; ++x)
-            {
-                meshColors[count] = simd_make_float3((x + 1.0f) * x_div, y * y_div, (1.0f + z) * z_div);
-                meshColors[count] = simd_normalize(meshColors[count]) * 0.75f;
-                count++;
-            }
-        }
-    }
 }
 
 void AAPLRenderer::prepareInstanceData()
@@ -454,9 +436,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
     
     pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
-    pRenderEncoder->setObjectBuffer(_pMeshColorsBuffer, 0, AAPLBufferIndexMeshColor);
     pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
-    pRenderEncoder->setObjectBytes(&lodChoice, 4, AAPLBufferIndexLODChoice);
 
     pRenderEncoder->setMeshBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
 
@@ -475,7 +455,7 @@ void AAPLRenderer::draw(MTK::View* pView)
     for (int i = 0; i < AAPLNumTasks; i++)
     {
         pRenderEncoder->setObjectBytes(&meshInfo[i], sizeof(AAPLMeshInfo), AAPLBufferIndexMeshInfo);
-        pRenderEncoder->drawMeshThreadgroups(MTL::Size(1, 1, 1),
+        pRenderEncoder->drawMeshThreadgroups(MTL::Size(meshInfo[i].instanceCount, 1, 1),
                                              MTL::Size(1, 1, 1),
                                              MTL::Size(126, 1, 1));
     }

@@ -49,20 +49,18 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
                                    constant AAPLVertex* vertices             [[buffer(AAPLBufferIndexMeshVertices)]],
                                    constant AAPLIndexType* indices           [[buffer(AAPLBufferIndexMeshIndices)]],
                                    constant float4x4*   transforms           [[buffer(AAPLBufferIndexTransforms)]],
-                                   constant float3*     colors               [[buffer(AAPLBufferIndexMeshColor)]],
                                    constant float4x4&   viewProjectionMatrix [[buffer(AAPLBufferViewProjectionMatrix)]],
-                                   constant uint&       lod                  [[buffer(AAPLBufferIndexLODChoice)]],
                                    uint3                positionInGrid       [[threadgroup_position_in_grid]])
 {
-       
-    payload.color = colors[0];
+
+    payload.color = meshInfo.color.xyz;
     
     uint startIndex = meshInfo.startIndex;
     uint startVertexIndex = meshInfo.startVertexIndex;
     
     payload.primitiveCount = meshInfo.primitiveCount;
     payload.vertexCount = meshInfo.vertexCount;
-    payload.instanceOffset = meshInfo.instanceOffset;
+    payload.instanceOffset = meshInfo.instanceOffset + positionInGrid.x;
 
 
     // Copy the triangle indices into the payload.
@@ -104,7 +102,7 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
     if (lid < payload.vertexCount)
     {
         vertexOut v;
-        int instanceID = tid + payload.instanceOffset;
+        int instanceID = payload.instanceOffset;
         float4 position = float4(payload.vertices[lid].position.xyz * instanceData[instanceID].instanceScale + instanceData[instanceID].instancePos, 1.0f);
 
         v.position = payload.transform * position;

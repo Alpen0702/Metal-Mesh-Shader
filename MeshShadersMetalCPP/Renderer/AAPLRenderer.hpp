@@ -41,7 +41,6 @@ private:
     MTL::DepthStencilState* _pDepthStencilState;
     MTL::Buffer* _pTransformsBuffer[AAPLMaxFramesInFlight];
 
-    MTL::Buffer* _pMeshColorsBuffer;
     MTL::Buffer* _pMeshVerticesBuffer;
     MTL::Buffer* _pMeshIndicesBuffer;
     MTL::Buffer* _pInstanceDataBuffer;
@@ -56,6 +55,5 @@ private:
     
     void updateStage();
     void makeMeshlets();
-    void makeMeshletColors();
     void prepareInstanceData();
 };
