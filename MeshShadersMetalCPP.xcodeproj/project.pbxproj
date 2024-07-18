@@ -11,11 +11,18 @@
 		47FCC7962785212B0089AEE0 /* AAPLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7952785212B0089AEE0 /* AAPLViewController.m */; };
 		47FCC79B2785212E0089AEE0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47FCC7992785212E0089AEE0 /* Main.storyboard */; };
 		47FCC79D2785212E0089AEE0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC79C2785212E0089AEE0 /* main.m */; };
-		47FCC7AD27852A730089AEE0 /* AAPLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */; };
 		47FCC7B32787CDB30089AEE0 /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */; };
 		71E8C2062786622F00F6CC0E /* AAPLRendererAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		7DCA4F812C411ED900E4EFE6 /* single_BC7.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */; };
-		7DCA4F822C411ED900E4EFE6 /* single_BC7.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */; };
+		7D9F049F2C4770A300ED52CA /* zixingche_layer300.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7D9F049D2C4770A300ED52CA /* zixingche_layer300.ktx */; };
+		7D9F04A02C4770A300ED52CA /* zixingche_layer300.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7D9F049D2C4770A300ED52CA /* zixingche_layer300.ktx */; };
+		7D9F04A12C4770A300ED52CA /* single_astc.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7D9F049E2C4770A300ED52CA /* single_astc.ktx */; };
+		7D9F04A22C4770A300ED52CA /* single_astc.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7D9F049E2C4770A300ED52CA /* single_astc.ktx */; };
+		7D9F04A72C4776B200ED52CA /* load_texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04A62C4776B200ED52CA /* load_texture.mm */; };
+		7D9F04A82C4776B200ED52CA /* load_texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04A62C4776B200ED52CA /* load_texture.mm */; };
+		7D9F04B12C47B20D00ED52CA /* texture_loader_bridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04B02C47B20D00ED52CA /* texture_loader_bridge.mm */; };
+		7D9F04B22C47B20D00ED52CA /* texture_loader_bridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04B02C47B20D00ED52CA /* texture_loader_bridge.mm */; };
+		7D9F04B42C47B30000ED52CA /* AAPLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04B32C47B30000ED52CA /* AAPLRenderer.cpp */; };
+		7D9F04B52C47B30000ED52CA /* AAPLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D9F04B32C47B30000ED52CA /* AAPLRenderer.cpp */; };
 		7DCA4F832C411ED900E4EFE6 /* simpRocks.bin in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */; };
 		7DCA4F842C411ED900E4EFE6 /* simpRocks.bin in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */; };
 		7DCA4F852C411ED900E4EFE6 /* simpRocks.gltf in Resources */ = {isa = PBXBuildFile; fileRef = 7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */; };
@@ -51,17 +58,22 @@
 		47FCC79A2785212E0089AEE0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		47FCC79C2785212E0089AEE0 /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		47FCC79E2785212E0089AEE0 /* MeshShadersMetalCPP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeshShadersMetalCPP.entitlements; sourceTree = "<group>"; };
-		47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = AAPLRenderer.cpp; sourceTree = "<group>"; };
 		47FCC7AC27852A730089AEE0 /* AAPLRenderer.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = AAPLRenderer.hpp; sourceTree = "<group>"; };
 		47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AAPLShaders.metal; sourceTree = "<group>"; };
 		71E8C2042786622F00F6CC0E /* AAPLRendererAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLRendererAdapter.h; sourceTree = "<group>"; };
 		71E8C2052786622F00F6CC0E /* AAPLRendererAdapter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLRendererAdapter.mm; sourceTree = "<group>"; };
+		7D9F049C2C47643100ED52CA /* load_texture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = load_texture.h; sourceTree = "<group>"; };
+		7D9F049D2C4770A300ED52CA /* zixingche_layer300.ktx */ = {isa = PBXFileReference; lastKnownFileType = file; path = zixingche_layer300.ktx; sourceTree = "<group>"; };
+		7D9F049E2C4770A300ED52CA /* single_astc.ktx */ = {isa = PBXFileReference; lastKnownFileType = file; path = single_astc.ktx; sourceTree = "<group>"; };
+		7D9F04A62C4776B200ED52CA /* load_texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = load_texture.mm; sourceTree = "<group>"; };
+		7D9F04B02C47B20D00ED52CA /* texture_loader_bridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = texture_loader_bridge.mm; sourceTree = "<group>"; };
+		7D9F04B32C47B30000ED52CA /* AAPLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPLRenderer.cpp; sourceTree = "<group>"; };
+		7D9F04B62C47B86E00ED52CA /* texture_loader_bridge.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = texture_loader_bridge.hpp; sourceTree = "<group>"; };
 		7DCA4EAD2C411EA400E4EFE6 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		7DCA4EAE2C411EA400E4EFE6 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
 		7DCA4EAF2C411EA400E4EFE6 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		7DCA4EB02C411EA400E4EFE6 /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
 		7DCA4EB12C411EA400E4EFE6 /* load_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = load_gltf.h; sourceTree = "<group>"; };
-		7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */ = {isa = PBXFileReference; lastKnownFileType = file; path = single_BC7.ktx; sourceTree = "<group>"; };
 		7DCA4F7F2C411ED900E4EFE6 /* simpRocks.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = simpRocks.bin; sourceTree = "<group>"; };
 		7DCA4F802C411ED900E4EFE6 /* simpRocks.gltf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpRocks.gltf; sourceTree = "<group>"; };
 		AB39788FA4CA4B2383CB3997 /* ACKNOWLEDGEMENTS.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = ACKNOWLEDGEMENTS.txt; sourceTree = "<group>"; };
@@ -113,8 +125,8 @@
 		474E8F8827A217970065B6E1 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				7D9F04B32C47B30000ED52CA /* AAPLRenderer.cpp */,
 				47FCC7AC27852A730089AEE0 /* AAPLRenderer.hpp */,
-				47FCC7AB27852A730089AEE0 /* AAPLRenderer.cpp */,
 				47C7BD2C27B354810044082A /* AAPLShaderTypes.h */,
 				47FCC7B22787CDB30089AEE0 /* AAPLShaders.metal */,
 			);
@@ -192,6 +204,10 @@
 		7DCA4EAC2C411EA400E4EFE6 /* gltfLoader */ = {
 			isa = PBXGroup;
 			children = (
+				7D9F04B62C47B86E00ED52CA /* texture_loader_bridge.hpp */,
+				7D9F04B02C47B20D00ED52CA /* texture_loader_bridge.mm */,
+				7D9F04A62C4776B200ED52CA /* load_texture.mm */,
+				7D9F049C2C47643100ED52CA /* load_texture.h */,
 				7DCA4EAD2C411EA400E4EFE6 /* json.hpp */,
 				7DCA4EAE2C411EA400E4EFE6 /* stb_image_write.h */,
 				7DCA4EAF2C411EA400E4EFE6 /* stb_image.h */,
@@ -213,7 +229,8 @@
 		7DCA4F7C2C411ED900E4EFE6 /* textures */ = {
 			isa = PBXGroup;
 			children = (
-				7DCA4F7D2C411ED900E4EFE6 /* single_BC7.ktx */,
+				7D9F049E2C4770A300ED52CA /* single_astc.ktx */,
+				7D9F049D2C4770A300ED52CA /* zixingche_layer300.ktx */,
 			);
 			path = textures;
 			sourceTree = "<group>";
@@ -339,7 +356,8 @@
 				7DCA4F852C411ED900E4EFE6 /* simpRocks.gltf in Resources */,
 				B94A43F428380DF400C2D5C2 /* metal-cpp in Resources */,
 				B95EA0B62832F59400DA2BE2 /* metal-cpp-extensions in Resources */,
-				7DCA4F812C411ED900E4EFE6 /* single_BC7.ktx in Resources */,
+				7D9F04A12C4770A300ED52CA /* single_astc.ktx in Resources */,
+				7D9F049F2C4770A300ED52CA /* zixingche_layer300.ktx in Resources */,
 				7DCA4F832C411ED900E4EFE6 /* simpRocks.bin in Resources */,
 				B9D3A5B12825AA16009D2405 /* Assets.xcassets in Resources */,
 				47FCC79B2785212E0089AEE0 /* Main.storyboard in Resources */,
@@ -350,7 +368,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DCA4F822C411ED900E4EFE6 /* single_BC7.ktx in Resources */,
 				7DCA4F842C411ED900E4EFE6 /* simpRocks.bin in Resources */,
 				B9EE81B32892FDD400888F42 /* metal-cpp in Resources */,
 				B9EE819F2892F5F600888F42 /* LaunchScreen.storyboard in Resources */,
@@ -358,6 +375,8 @@
 				B9EE819C2892F5F600888F42 /* Assets.xcassets in Resources */,
 				B9EE819A2892F5F500888F42 /* Main.storyboard in Resources */,
 				B9EE81B42892FDD600888F42 /* metal-cpp-extensions in Resources */,
+				7D9F04A22C4770A300ED52CA /* single_astc.ktx in Resources */,
+				7D9F04A02C4770A300ED52CA /* zixingche_layer300.ktx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -368,11 +387,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47FCC7AD27852A730089AEE0 /* AAPLRenderer.cpp in Sources */,
 				71E8C2062786622F00F6CC0E /* AAPLRendererAdapter.mm in Sources */,
 				47FCC7B32787CDB30089AEE0 /* AAPLShaders.metal in Sources */,
+				7D9F04B12C47B20D00ED52CA /* texture_loader_bridge.mm in Sources */,
+				7D9F04A72C4776B200ED52CA /* load_texture.mm in Sources */,
 				47FCC7962785212B0089AEE0 /* AAPLViewController.m in Sources */,
 				47FCC79D2785212E0089AEE0 /* main.m in Sources */,
+				7D9F04B42C47B30000ED52CA /* AAPLRenderer.cpp in Sources */,
 				47FCC7932785212B0089AEE0 /* AAPLAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -383,8 +404,11 @@
 			files = (
 				B9EE81B52892FFBC00888F42 /* AAPLShaders.metal in Sources */,
 				B9EE81AB2892FD1F00888F42 /* AAPLRendererAdapter.mm in Sources */,
+				7D9F04B22C47B20D00ED52CA /* texture_loader_bridge.mm in Sources */,
 				B9EE81A92892F8C000888F42 /* AAPLViewController.m in Sources */,
+				7D9F04A82C4776B200ED52CA /* load_texture.mm in Sources */,
 				B9EE81A62892F64700888F42 /* main.m in Sources */,
+				7D9F04B52C47B30000ED52CA /* AAPLRenderer.cpp in Sources */,
 				B9EE81A72892F7B000888F42 /* AAPLAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

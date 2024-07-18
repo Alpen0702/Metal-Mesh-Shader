@@ -14,6 +14,7 @@ The renderer's mesh shader implementation that draws bicubic Bezier patches.
 #include <string>
 #include <random>
 #include "load_gltf.h"
+#include "texture_loader_bridge.hpp"
 #include "AAPLRenderer.hpp"
 
 constexpr bool _useMultisampleAntialiasing = true;
@@ -179,8 +180,10 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     
     //loadGLTF("/Users/liyangyang/Desktop/leiluo/Git\ Mesh\ Shader/Metal-Mesh-Shader/assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
     loadGLTF("assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
-
     
+    void* loader = createTextureLoader();
+    MTL::Device* device = _pDevice;
+    texture = loadTexture(loader, "zixingche_layer300", device);
     
     buildShaders();
     makeMeshlets();
@@ -443,6 +446,8 @@ void AAPLRenderer::draw(MTK::View* pView)
     // Pass data to the mesh stage.
     pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
 
+    pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
+    
     /// Draw objects using the mesh shaders.
     /// Parameter 1: threadgroupsPerGrid ... X=`AAPLNumObjectsX`, Y=`AAPLNumObjectsY`, ...
     /// Parameter 2: threadsPerObjectThreadgroup ... `AAPLMaxTotalThreadsPerObjectThreadgroup`

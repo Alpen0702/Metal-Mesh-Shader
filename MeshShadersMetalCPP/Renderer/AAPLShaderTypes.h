@@ -26,6 +26,12 @@ typedef enum BufferIndex : int32_t
     AAPLBufferInstanceData = 5
 } BufferIndex;
 
+typedef enum TextureIndex
+{
+    TextureIndexBaseColor = 0
+
+} TextureIndex;
+
 typedef struct AAPLVertex
 {
     simd_float4 position;

@@ -7,6 +7,7 @@ struct vertexOut
 {
     float4 position [[position]];
     float3 normal;
+    float2 texCoord;
 };
 
 struct payload_t
@@ -107,6 +108,7 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
 
         v.position = payload.transform * position;
         v.normal = normalize(payload.vertices[lid].normal.xyz);
+        v.texCoord = payload.vertices[lid].uv;
         output.set_vertex(lid, v);
     }
     
@@ -126,23 +128,16 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
 }
 
 /// The fragment shader that blends a bit of Lambertian light with the meshlet's normal and mesh color.
-fragment float4 fragmentShader(fragmentIn in [[stage_in]])
+fragment float4 fragmentShader(fragmentIn in [[stage_in]],
+                               texture2d<float> texArray [[texture(TextureIndexBaseColor)]])
+
+                               //texture2d<float> texture [[texture(TextureIndexBaseColor)]])
 {
-    float3 N = normalize(in.v.normal);
-    float3 L = normalize(float3(1, 1, 1));
+    constexpr sampler linearSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);
+    float4 color = texArray.sample(linearSampler, in.v.texCoord);
+    //float4 color = texture.sample(linearSampler, in.v.texCoord);
+    color.rgb = pow(color.rgb, 1.0 / 2.2);
 
-    // The dot product of the normal and light direction isn't clamped and makes
-    // the intensity of the mesh color range between `0.5` and `1.0`.
-    float3 ambientIntensity = float3(1.0);
-    float3 lightIntensity = float3(100.0);
-    float3 colorIntensity = ambientIntensity + lightIntensity * (0.5 + 0.5 * dot(N, L));
-
-    // Reduce the dynamic range by a simple tone-mapping operator.
-    colorIntensity = colorIntensity / (1.0 + colorIntensity);
-
-    // Change the range of the normal from [-1, 1] to [0, 1] to use it as a color.
-    float3 normalColor = N * 0.5 + 0.5;
-
-    // Add a 20% mix of the normal color with the shaded meshlet color.
-    return float4(mix(colorIntensity * in.p.color, normalColor, 0.2), 1.0f);
+    return color;
+    
 }

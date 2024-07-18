@@ -44,6 +44,8 @@ private:
     MTL::Buffer* _pMeshVerticesBuffer;
     MTL::Buffer* _pMeshIndicesBuffer;
     MTL::Buffer* _pInstanceDataBuffer;
+    
+    MTL::Texture* texture;
 
     matrix_float4x4 _projectionMatrix;
     float degree;
