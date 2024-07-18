@@ -46,6 +46,7 @@ private:
     MTL::Buffer* _pInstanceDataBuffer;
     
     MTL::Texture* texture;
+    const MTL::Texture* texArray[300];
 
     matrix_float4x4 _projectionMatrix;
     float degree;

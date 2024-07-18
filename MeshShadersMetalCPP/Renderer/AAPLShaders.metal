@@ -129,13 +129,13 @@ void meshShaderMeshStageFunction(AAPLTriangleMeshType output,
 
 /// The fragment shader that blends a bit of Lambertian light with the meshlet's normal and mesh color.
 fragment float4 fragmentShader(fragmentIn in [[stage_in]],
-                               texture2d<float> texArray [[texture(TextureIndexBaseColor)]])
+                               //texture2d_array<float> texArray [[texture(TextureIndexBaseColor)]])
 
-                               //texture2d<float> texture [[texture(TextureIndexBaseColor)]])
+                               texture2d<float> texture [[texture(TextureIndexBaseColor)]])
 {
     constexpr sampler linearSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);
-    float4 color = texArray.sample(linearSampler, in.v.texCoord);
-    //float4 color = texture.sample(linearSampler, in.v.texCoord);
+    //float4 color = texArray.sample(linearSampler, in.v.texCoord, 3000);
+    float4 color = texture.sample(linearSampler, in.v.texCoord);
     color.rgb = pow(color.rgb, 1.0 / 2.2);
 
     return color;

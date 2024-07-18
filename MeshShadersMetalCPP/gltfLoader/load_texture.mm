@@ -9,7 +9,9 @@
     MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice:device];
     NSDictionary *textureLoaderOptions = @{
         MTKTextureLoaderOptionTextureUsage : @(MTLTextureUsageShaderRead),
-        MTKTextureLoaderOptionTextureStorageMode : @(MTLStorageModePrivate)
+        MTKTextureLoaderOptionTextureStorageMode : @(MTLStorageModePrivate),
+        //MTKTextureLoaderOptionLoadAsArray : @true,
+        
     };
     id<MTLTexture> texture = [loader newTextureWithContentsOfURL:url options:textureLoaderOptions error:&error];
 

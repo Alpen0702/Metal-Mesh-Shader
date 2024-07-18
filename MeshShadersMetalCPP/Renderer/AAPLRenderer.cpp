@@ -183,7 +183,9 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     
     void* loader = createTextureLoader();
     MTL::Device* device = _pDevice;
-    texture = loadTexture(loader, "zixingche_layer300", device);
+    texture = loadTexture(loader, "single_astc", device);
+//    for (int i = 0; i < 300; i++)
+//        texArray[i] = loadTexture(loader, "single_astc", device);
     
     buildShaders();
     makeMeshlets();
@@ -446,7 +448,19 @@ void AAPLRenderer::draw(MTK::View* pView)
     // Pass data to the mesh stage.
     pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
 
+    //pRenderEncoder->setFragmentTextures(texArray, TextureIndexBaseColor);
     pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
+    
+//    // 第一批处理前128个纹理
+//    pRenderEncoder->setFragmentTextures(texArray, {0, 128});
+//
+//    // 第二批处理接下来的128个纹理
+//    pRenderEncoder->setFragmentTextures(texArray + 128, {128, 128});
+//
+//    // 处理剩余的44个纹理
+//    pRenderEncoder->setFragmentTextures(texArray + 256, {256, 44});
+    //pRenderEncoder->setFragmentTextures(texArray, NS::Range(0, 300));
+
     
     /// Draw objects using the mesh shaders.
     /// Parameter 1: threadgroupsPerGrid ... X=`AAPLNumObjectsX`, Y=`AAPLNumObjectsY`, ...
