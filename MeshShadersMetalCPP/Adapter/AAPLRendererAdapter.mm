@@ -73,9 +73,9 @@ This class forwards the view draw and resize methods to the C++ renderer class.
     _pRenderer->offsetY = offsetY;
 }
 
-- (void)setLODChoice:(int)lodChoice
+- (void)setMethodChoice:(int)methodChoice
 {
-    _pRenderer->lodChoice = lodChoice;
+    _pRenderer->methodChoice = methodChoice;
 }
 
 - (void)setTopologyChoice:(int)topologyChoice

@@ -6,9 +6,9 @@ The renderer's mesh shader implementation that draws bicubic Bezier patches.
 */
 
 #include <MetalKit/MetalKit.hpp>
+#include <Metal/Metal.h>
 #include <simd/simd.h>
 #include <vector>
-#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -190,6 +190,7 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     buildShaders();
     makeMeshlets();
     prepareInstanceData();
+    prepareIndirectCmdBuffer();
 }
 
 /// Releases the renderer's GPU resources, including buffers and pipeline states.
@@ -197,7 +198,8 @@ AAPLRenderer::~AAPLRenderer()
 {
     _pDevice->release();
     _pCommandQueue->release();
-    _pRenderPipelineState->release();
+    _pRenderPipelineStateIndirectDraw->release();
+    _pRenderPipelineStateMeshShader->release();
     _pDepthStencilState->release();
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
@@ -214,12 +216,35 @@ void AAPLRenderer::buildShaders()
 
     NS::Error* pError = nullptr;
     MTL::Library* pLibrary = _pDevice->newDefaultLibrary();
+
+    // Set up the indirect draw pipeline.
+    MTL::RenderPipelineDescriptor* pIndirectDesc = MTL::RenderPipelineDescriptor::alloc()->init();
+
+    pIndirectDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
+    pIndirectDesc->setDepthAttachmentPixelFormat(MTL::PixelFormatDepth32Float_Stencil8);
+    pIndirectDesc->setStencilAttachmentPixelFormat(MTL::PixelFormatDepth32Float_Stencil8);
+    if (_useMultisampleAntialiasing)
+        pIndirectDesc->setRasterSampleCount(4);
+    pIndirectDesc->setSupportIndirectCommandBuffers(true);
+    
+    MTL::Function* pVertFnIndirect = pLibrary->newFunction(NS::String::string("indirectDrawVertStageFunction", UTF8StringEncoding));
+    pIndirectDesc->setVertexFunction(pVertFnIndirect);
+    
+    MTL::Function* pFragFnIndirect = pLibrary->newFunction(NS::String::string("indirectDrawFragStageFunction", UTF8StringEncoding));
+    pIndirectDesc->setFragmentFunction(pFragFnIndirect);
+    
+    _pRenderPipelineStateIndirectDraw = _pDevice->newRenderPipelineState(pIndirectDesc, MTL::PipelineOptionNone, nullptr, &pError);
     handleError(&pError);
 
+    pVertFnIndirect->release();
+    pFragFnIndirect->release();
+    pIndirectDesc->release();
+    
+    
     // Set up the mesh shading pipeline.
     MTL::MeshRenderPipelineDescriptor* pMeshDesc = MTL::MeshRenderPipelineDescriptor::alloc()->init();
     MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentShader", UTF8StringEncoding));
-
+    
     // All three mesh shaders use the following common properties.
     pMeshDesc->setFragmentFunction(pFragFn);
     pMeshDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
@@ -243,7 +268,7 @@ void AAPLRenderer::buildShaders()
     handleError(&pError);
     pMeshDesc->setObjectFunction(pObjectFn);
 
-    _pRenderPipelineState = _pDevice->newRenderPipelineState(pMeshDesc, MTL::PipelineOptionNone, nullptr, &pError);
+    _pRenderPipelineStateMeshShader = _pDevice->newRenderPipelineState(pMeshDesc, MTL::PipelineOptionNone, nullptr, &pError);
     pObjectFn->release();
     pMeshFn->release();
     pConstantValues->release();
@@ -386,6 +411,63 @@ void AAPLRenderer::prepareInstanceData()
     memcpy(_pInstanceDataBuffer->contents(), instance_data.data(), sizeof(AAPLInstanceData) * instanceCount);
 }
 
+//- (void)prepareIndirectCmdBuffer
+void AAPLRenderer::prepareIndirectCmdBuffer()
+{
+    MTLIndirectCommandBufferDescriptor* icbDescriptor = [MTLIndirectCommandBufferDescriptor new];
+
+    // Indicate that the only draw commands will be indexed draw commands.
+    icbDescriptor.commandTypes = MTLIndirectCommandTypeDrawIndexed;
+
+    // Indicate that buffers will be set for each command IN the indirect command buffer.
+    icbDescriptor.inheritBuffers = NO;
+
+    // Indicate that a max of 3 buffers will be set for each command.
+    icbDescriptor.maxVertexBufferBindCount = 3;
+    icbDescriptor.maxFragmentBufferBindCount = 0;
+
+#if defined TARGET_MACOS || defined(__IPHONE_13_0)
+    // Indicate that the render pipeline state object will be set in the render command encoder
+    // (not by the indirect command buffer).
+    // On iOS, this property only exists on iOS 13 and later.  It defaults to YES in earlier
+    // versions
+    if (@available(iOS 13.0, *)) {
+        icbDescriptor.inheritPipelineState = YES;
+    }
+#endif
+
+    id<MTLIndirectCommandBuffer> _indirectCommandBuffer;
+
+    _indirectCommandBuffer = [(__bridge id<MTLDevice>)_pDevice newIndirectCommandBufferWithDescriptor:icbDescriptor
+                                                             maxCommandCount:1
+                                                                     options:0];
+
+    _indirectCommandBuffer.label = @"Scene ICB";
+
+    //  Encode a draw command for each object drawn in the indirect command buffer.
+    for (int objIndex = 0; objIndex < 1; objIndex++)
+    {
+        id<MTLIndirectRenderCommand> ICBCommand =
+            [_indirectCommandBuffer indirectRenderCommandAtIndex:objIndex];
+
+        [ICBCommand setVertexBuffer:(__bridge id<MTLBuffer>)_pMeshVerticesBuffer
+                             offset:0
+                            atIndex:AAPLBufferIndexMeshVertices];
+        
+        [ICBCommand drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                               indexCount:6
+                                indexType:MTLIndexTypeUInt16
+                              indexBuffer:(__bridge id<MTLBuffer>)_pMeshIndicesBuffer
+                        indexBufferOffset:0
+                            instanceCount:300
+                               baseVertex:0
+                             baseInstance:0];
+
+    }
+    
+    _pIndirectCommandBuffer = (__bridge_retained MTL::IndirectCommandBuffer*)_indirectCommandBuffer;
+}
+
 /// Updates the object transform matrix state before other methods encode any render commands.
 void AAPLRenderer::updateStage()
 {
@@ -432,52 +514,77 @@ void AAPLRenderer::draw(MTK::View* pView)
     // Update the object positions.
     updateStage();
 
-    pRenderEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
-    pRenderEncoder->setRenderPipelineState(_pRenderPipelineState);
-    pRenderEncoder->setDepthStencilState(_pDepthStencilState);
 
-    // Pass data to the object stage.
-    pRenderEncoder->setObjectBuffer(_pMeshVerticesBuffer, 0, AAPLBufferIndexMeshVertices);
-    pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
-    
-    pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
-    pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
-
-    pRenderEncoder->setMeshBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
-
-    // Pass data to the mesh stage.
-    pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
-
-    //pRenderEncoder->setFragmentTextures(texArray, TextureIndexBaseColor);
-    pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
-    
-//    // 第一批处理前128个纹理
-//    pRenderEncoder->setFragmentTextures(texArray, {0, 128});
-//
-//    // 第二批处理接下来的128个纹理
-//    pRenderEncoder->setFragmentTextures(texArray + 128, {128, 128});
-//
-//    // 处理剩余的44个纹理
-//    pRenderEncoder->setFragmentTextures(texArray + 256, {256, 44});
-    //pRenderEncoder->setFragmentTextures(texArray, NS::Range(0, 300));
-
-    
-    /// Draw objects using the mesh shaders.
-    /// Parameter 1: threadgroupsPerGrid ... X=`AAPLNumObjectsX`, Y=`AAPLNumObjectsY`, ...
-    /// Parameter 2: threadsPerObjectThreadgroup ... `AAPLMaxTotalThreadsPerObjectThreadgroup`
-    /// Parameter 3: threadsPerMeshGroup ... X = `AAPLMaxTotalThreadsPerMeshThreadgroup` has a limit of 64 vertices per meshlet in this sample.
-    ///
-    /// The object shader copies vertices, indices, and other relevant data to the payload and generates the submesh groups.
-    /// The parameter `positionInGrid` (`threadgroup_position_in_grid`) in the shader addresses the submesh.
-    /// This tells the object shader the index of the transform for the submesh.
-    /// The mesh shader uses the payload to generate the primitives (points, lines, or triangles).
-    for (int i = 0; i < AAPLNumTasks; i++)
+    // Indirect Draw
+    if (methodChoice == 1)
     {
-        pRenderEncoder->setObjectBytes(&meshInfo[i], sizeof(AAPLMeshInfo), AAPLBufferIndexMeshInfo);
-        pRenderEncoder->drawMeshThreadgroups(MTL::Size(meshInfo[i].instanceCount, 1, 1),
-                                             MTL::Size(1, 1, 1),
-                                             MTL::Size(126, 1, 1));
+        pRenderEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
+        pRenderEncoder->setRenderPipelineState(_pRenderPipelineStateIndirectDraw);
+        pRenderEncoder->setDepthStencilState(_pDepthStencilState);
+        
+        pRenderEncoder->setVertexBuffer(_pMeshVerticesBuffer, 0, AAPLBufferIndexMeshVertices);
+        pRenderEncoder->setVertexBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
+        pRenderEncoder->setVertexBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
+        pRenderEncoder->setVertexBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+        //pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
+
+        pRenderEncoder->useResource(_pMeshVerticesBuffer, MTLResourceUsageRead);
+        pRenderEncoder->useResource(_pInstanceDataBuffer, MTLResourceUsageRead);
+        
+        pRenderEncoder->executeCommandsInBuffer(_pIndirectCommandBuffer, {0, 1});
     }
+    
+    // Mesh Shader
+    if (methodChoice == 2)
+    {
+        pRenderEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
+        pRenderEncoder->setRenderPipelineState(_pRenderPipelineStateMeshShader);
+        pRenderEncoder->setDepthStencilState(_pDepthStencilState);
+        
+        // Pass data to the object stage.
+        pRenderEncoder->setObjectBuffer(_pMeshVerticesBuffer, 0, AAPLBufferIndexMeshVertices);
+        pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
+        
+        pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
+        pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+
+        pRenderEncoder->setMeshBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
+
+        // Pass data to the mesh stage.
+        pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+
+        //pRenderEncoder->setFragmentTextures(texArray, TextureIndexBaseColor);
+        pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
+        
+    //    // 第一批处理前128个纹理
+    //    pRenderEncoder->setFragmentTextures(texArray, {0, 128});
+    //
+    //    // 第二批处理接下来的128个纹理
+    //    pRenderEncoder->setFragmentTextures(texArray + 128, {128, 128});
+    //
+    //    // 处理剩余的44个纹理
+    //    pRenderEncoder->setFragmentTextures(texArray + 256, {256, 44});
+        //pRenderEncoder->setFragmentTextures(texArray, NS::Range(0, 300));
+
+        
+        /// Draw objects using the mesh shaders.
+        /// Parameter 1: threadgroupsPerGrid ... X=`AAPLNumObjectsX`, Y=`AAPLNumObjectsY`, ...
+        /// Parameter 2: threadsPerObjectThreadgroup ... `AAPLMaxTotalThreadsPerObjectThreadgroup`
+        /// Parameter 3: threadsPerMeshGroup ... X = `AAPLMaxTotalThreadsPerMeshThreadgroup` has a limit of 64 vertices per meshlet in this sample.
+        ///
+        /// The object shader copies vertices, indices, and other relevant data to the payload and generates the submesh groups.
+        /// The parameter `positionInGrid` (`threadgroup_position_in_grid`) in the shader addresses the submesh.
+        /// This tells the object shader the index of the transform for the submesh.
+        /// The mesh shader uses the payload to generate the primitives (points, lines, or triangles).
+        for (int i = 0; i < AAPLNumTasks; i++)
+        {
+            pRenderEncoder->setObjectBytes(&meshInfo[i], sizeof(AAPLMeshInfo), AAPLBufferIndexMeshInfo);
+            pRenderEncoder->drawMeshThreadgroups(MTL::Size(meshInfo[i].instanceCount, 1, 1),
+                                                 MTL::Size(1, 1, 1),
+                                                 MTL::Size(126, 1, 1));
+        }
+    }
+    
 
     pRenderEncoder->endEncoding();
     pCommandBuffer->presentDrawable(pView->currentDrawable());

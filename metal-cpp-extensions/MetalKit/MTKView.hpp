@@ -166,7 +166,7 @@ _NS_INLINE void MTK::View::setDelegate( const MTK::ViewDelegate* pDelegate )
 
 	void (*drawDispatch)( NS::Value*, SEL, id ) = []( NS::Value* pSelf, SEL _cmd, id pMTKView ){
 		auto pDel = reinterpret_cast< MTK::ViewDelegate* >( pSelf->pointerValue() );
-		pDel->drawInMTKView( (MTK::View *)pMTKView );
+        pDel->drawInMTKView( (__bridge MTK::View *)pMTKView );
 	};
 
 	class_addMethod( (Class)objc_lookUpClass( "NSValue" ), sel_registerName( "drawInMTKView:" ), (IMP)drawDispatch, "v@:@" );
@@ -188,7 +188,7 @@ _NS_INLINE void MTK::View::setDelegate( const MTK::ViewDelegate* pDelegate )
 
 	// This circular reference leaks the wrapper object to keep it around for the dispatch to work.
 	// It may be better to hoist it to the MTK::View as a member.
-	objc_setAssociatedObject( (id)pWrapper, "mtkviewdelegate_cpp", (id)pWrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC );
+    objc_setAssociatedObject( (__bridge id)pWrapper, "mtkviewdelegate_cpp", (__bridge id)pWrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC );
 
 	NS::Object::sendMessage< void >( this, sel_registerName( "setDelegate:" ), pWrapper );
 }

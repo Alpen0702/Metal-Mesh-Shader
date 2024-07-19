@@ -16,18 +16,18 @@ The cross-platform view controller.
 
 #if TARGET_OS_OSX
 
-    __weak IBOutlet NSSegmentedControl* _lodDetailChoice;
+    __weak IBOutlet NSSegmentedControl* _methodChoice;
     __weak IBOutlet NSSegmentedControl* _topologyChoice;
     __weak IBOutlet NSSegmentedControl* _rotationChoice;
     __weak IBOutlet NSSlider* _translationAmount;
-    __weak IBOutlet NSTextField* _lodDetailChoiceLabel;
+    __weak IBOutlet NSTextField* _methodChoiceLabel;
     __weak IBOutlet NSTextField* _topologyChoiceLabel;
     __weak IBOutlet NSTextField* _rotationChoiceLabel;
     __weak IBOutlet NSTextField* _translationAmountLabel;
 
 #elif TARGET_OS_IPHONE
 
-    __weak IBOutlet UISegmentedControl* _lodDetailChoice;
+    __weak IBOutlet UISegmentedControl* _methodChoice;
     __weak IBOutlet UISegmentedControl* _topologyChoice;
     __weak IBOutlet UISegmentedControl* _rotationChoice;
     __weak IBOutlet UISlider* _translationAmount;
@@ -87,7 +87,7 @@ The cross-platform view controller.
         {
             [_rotationChoice setHidden:YES]; [_rotationChoiceLabel setHidden:YES];
             [_topologyChoice setHidden:YES]; [_topologyChoiceLabel setHidden:YES];
-            [_lodDetailChoice setHidden:YES]; [_lodDetailChoiceLabel setHidden:YES];
+            [_methodChoice setHidden:YES]; [_methodChoiceLabel setHidden:YES];
             [_translationAmount setHidden:YES]; [_translationAmountLabel setHidden:YES];
         }
         
@@ -101,55 +101,55 @@ The cross-platform view controller.
         if (timeRunning < 20.0f)
             [_translationAmount setFloatValue:sin(timeRunning / 16.0f)];
         if (timeRunning >= 24) {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:2]; // Triangles
         }
         else if (timeRunning >= 22) {
-            [_lodDetailChoice setSelectedSegment:1]; // Medium
+            [_methodChoice setSelectedSegment:1]; // Medium
             [_topologyChoice setSelectedSegment:2]; // Triangles
         }
         else if (timeRunning >= 20) {
-            [_lodDetailChoice setSelectedSegment:0]; // Low
+            [_methodChoice setSelectedSegment:0]; // Low
             [_topologyChoice setSelectedSegment:2]; // Triangles
         }
         else if (timeRunning >= 18) {
-            [_lodDetailChoice setSelectedSegment:0]; // Low
+            [_methodChoice setSelectedSegment:0]; // Low
             [_topologyChoice setSelectedSegment:1]; // Lines
         }
         else if (timeRunning >= 16) {
-            [_lodDetailChoice setSelectedSegment:1]; // Medium
+            [_methodChoice setSelectedSegment:1]; // Medium
             [_topologyChoice setSelectedSegment:1]; // Lines
         }
         else if (timeRunning >= 14) {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:1]; // Lines
         }
         else if (timeRunning >= 12) {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:0]; // Points
         }
         else if (timeRunning >= 10) {
-            [_lodDetailChoice setSelectedSegment:1]; // Medium
+            [_methodChoice setSelectedSegment:1]; // Medium
             [_topologyChoice setSelectedSegment:0]; // Points
         }
         else if (timeRunning >= 8) {
-            [_lodDetailChoice setSelectedSegment:0]; // Low
+            [_methodChoice setSelectedSegment:0]; // Low
             [_topologyChoice setSelectedSegment:0]; // Points
         }
         else if (timeRunning >= 6) {
-            [_lodDetailChoice setSelectedSegment:1]; // Medium
+            [_methodChoice setSelectedSegment:1]; // Medium
             [_topologyChoice setSelectedSegment:0]; // Points
         }
         else if (timeRunning >= 4) {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:0]; // Points
         }
         else if (timeRunning >= 2) {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:1]; // Lines
         }
         else {
-            [_lodDetailChoice setSelectedSegment:2]; // High
+            [_methodChoice setSelectedSegment:2]; // High
             [_topologyChoice setSelectedSegment:2]; // Triangles
         }
     }
@@ -158,12 +158,12 @@ The cross-platform view controller.
 #endif
 
 #if TARGET_OS_OSX
-    NSInteger lodDetailChoice = _lodDetailChoice.selectedSegment;
+    NSInteger methodChoice = _methodChoice.selectedSegment;
     NSInteger topologyChoice = _topologyChoice.selectedSegment;
     NSInteger rotationChoice = _rotationChoice.selectedSegment;
     float translationAmount = _translationAmount.floatValue;
 #elif TARGET_OS_IPHONE
-    NSInteger lodDetailChoice = _lodDetailChoice.selectedSegmentIndex;
+    NSInteger methodChoice = _methodChoice.selectedSegmentIndex;
     NSInteger topologyChoice = _topologyChoice.selectedSegmentIndex;
     NSInteger rotationChoice = _rotationChoice.selectedSegmentIndex;
     float translationAmount = _translationAmount.value;
@@ -171,12 +171,12 @@ The cross-platform view controller.
 
     [_renderer setTranslation:translationAmount offsetY:offsetY];
 
-    switch (lodDetailChoice)
+    switch (methodChoice)
     {
         case -1:
-        case 0: [_renderer setLODChoice:2]; break; // Low
-        case 1: [_renderer setLODChoice:1]; break; // Medium
-        case 2: [_renderer setLODChoice:0]; break; // High
+        case 0: [_renderer setMethodChoice:0]; break; // Low
+        case 1: [_renderer setMethodChoice:1]; break; // Medium
+        case 2: [_renderer setMethodChoice:2]; break; // Mesh Shader
     }
     
     switch(topologyChoice)

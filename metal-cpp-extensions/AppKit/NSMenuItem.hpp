@@ -88,7 +88,7 @@ _NS_INLINE SEL NS::MenuItem::registerActionCallback( const char* name, NS::MenuI
 
 	if ( callback )
 	{
-		class_addMethod( (Class)_NS_PRIVATE_CLS( NSObject ), sel, (IMP)callback, "v@:@" );
+        class_addMethod( (__bridge Class)_NS_PRIVATE_CLS( NSObject ), sel, (IMP)callback, "v@:@" );
 	}
 	return sel;
 }

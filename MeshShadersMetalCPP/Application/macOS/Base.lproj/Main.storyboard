@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21219" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21219"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22505"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -709,15 +709,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="1280" height="720"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RlG-IP-40F" userLabel="LOD Detail">
-                                <rect key="frame" x="18" y="681" width="39" height="16"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="Detail" id="GnZ-rU-tag">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RlG-IP-40F" userLabel="Method Choice Label">
+                                <rect key="frame" x="18" y="681" width="51" height="16"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Method" id="GnZ-rU-tag">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="998-q6-YHn">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="998-q6-YHn">
                                 <rect key="frame" x="18" y="655" width="60" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Topology" id="YrG-iN-KMa">
                                     <font key="font" metaFont="system"/>
@@ -725,7 +725,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="95R-I7-mKX">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="95R-I7-mKX">
                                 <rect key="frame" x="1191" y="681" width="55" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Rotation" id="Bwn-TC-I71">
                                     <font key="font" metaFont="system"/>
@@ -733,7 +733,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p8U-jq-Xez" userLabel="Translation Label">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p8U-jq-Xez" userLabel="Translation Label">
                                 <rect key="frame" x="1191" y="655" width="71" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Translation" id="Gid-tI-cHh">
                                     <font key="font" metaFont="system"/>
@@ -741,8 +741,8 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="c04-ie-D5m" userLabel="LOD Detail Choice">
-                                <rect key="frame" x="82" y="677" width="204" height="24"/>
+                            <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="c04-ie-D5m" userLabel="Method Choice">
+                                <rect key="frame" x="94" y="677" width="204" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="p45-Ui-CP0"/>
                                 </constraints>
@@ -750,8 +750,8 @@
                                     <font key="font" metaFont="system"/>
                                     <segments>
                                         <segment label="Low" width="64"/>
-                                        <segment label="Medium" width="64" tag="1"/>
-                                        <segment label="High" width="64" selected="YES"/>
+                                        <segment label="Indirect Draw" width="108" tag="1"/>
+                                        <segment label="Mesh Shader" width="108" selected="YES"/>
                                     </segments>
                                 </segmentedCell>
                             </segmentedControl>
@@ -812,8 +812,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="_lodDetailChoice" destination="c04-ie-D5m" id="0Dg-oY-MVp"/>
-                        <outlet property="_lodDetailChoiceLabel" destination="RlG-IP-40F" id="YKe-ie-Erd"/>
+                        <outlet property="_methodChoice" destination="c04-ie-D5m" id="vNh-10-TZJ"/>
+                        <outlet property="_methodChoiceLabel" destination="RlG-IP-40F" id="HTo-tN-f6V"/>
                         <outlet property="_rotationChoice" destination="blT-Ew-Xpm" id="rCh-iL-Bdt"/>
                         <outlet property="_rotationChoiceLabel" destination="95R-I7-mKX" id="Rou-CW-SFZ"/>
                         <outlet property="_topologyChoice" destination="mUQ-Mz-Mrr" id="iLe-YC-r7i"/>

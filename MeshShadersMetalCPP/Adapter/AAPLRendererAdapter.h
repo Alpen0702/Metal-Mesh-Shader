@@ -18,7 +18,7 @@ This class forwards Objective-C view draw and resize methods to the C++ renderer
 - (void)drawableSizeWillChange:(CGSize)size;
 - (void)setRotationSpeed:(float)speed;
 - (void)setTranslation:(float)offsetZ offsetY:(float)offsetY;
-- (void)setLODChoice:(int)lodChoice;
+- (void)setMethodChoice:(int)methodChoice;
 - (void)setTopologyChoice:(int)topologyChoice;
 
 @end
