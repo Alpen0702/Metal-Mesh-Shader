@@ -1,16 +1,5 @@
-# Adjusting the level of detail using Metal mesh shaders
+# Metal Mesh Shader Demo
 
-Choose and render meshes with several levels of detail using object and mesh shaders.
+基于https://developer.apple.com/documentation/metal/metal_sample_code_library/adjusting_the_level_of_detail_using_metal_mesh_shaders
 
-## Overview
-
-- Note: This sample code project is associated with WWDC22 session [10162: Transform your geometry with Metal mesh shaders](https://developer.apple.com/wwdc22/10162/).
-
-## Configure the sample code project
-
-To run this sample, you need Xcode 14 or later, and a physical device that supports [`MTLGPUFamilyMac2`](https://developer.apple.com/documentation/metal/mtlgpufamily/mtlgpufamilymac2) or [`MTLGPUFamilyApple7`](https://developer.apple.com/documentation/metal/mtlgpufamily/mtlgpufamilyapple7), such as:
-
-* A Mac running macOS 13 or later
-* An iOS device with an A15 chip or later running iOS 16 or later
-
-This sample can only run on a physical device because it uses Metal’s mesh shader features, which Simulator doesn’t support.
+已完成Mesh Shader功能。作为对照组的Indirect draw还不完全。
