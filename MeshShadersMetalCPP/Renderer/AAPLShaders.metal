@@ -50,7 +50,7 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
                                    constant AAPLVertex* vertices             [[buffer(AAPLBufferIndexMeshVertices)]],
                                    constant AAPLIndexType* indices           [[buffer(AAPLBufferIndexMeshIndices)]],
                                    constant float4x4*   transforms           [[buffer(AAPLBufferIndexTransforms)]],
-                                   constant float4x4&   viewProjectionMatrix [[buffer(AAPLBufferViewProjectionMatrix)]],
+                                   constant float4x4*   viewProjectionMatrix [[buffer(AAPLBufferViewProjectionMatrix)]],
                                    uint3                positionInGrid       [[threadgroup_position_in_grid]])
 {
 
@@ -77,7 +77,7 @@ void meshShaderObjectStageFunction(object_data payload_t& payload            [[p
     }
     
     // Concatenate the view projection matrix to the model transform matrix.
-    payload.transform = viewProjectionMatrix * transforms[0];
+    payload.transform = viewProjectionMatrix[0] * transforms[0];
 
     // Set the output submesh count for the mesh shader.
     // Because the mesh shader is only producing one mesh, the threadgroup grid size is 1 x 1 x 1.

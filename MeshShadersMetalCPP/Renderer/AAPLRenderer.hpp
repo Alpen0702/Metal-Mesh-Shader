@@ -41,6 +41,7 @@ private:
     MTL::Buffer* _pMeshVerticesBuffer;
     MTL::Buffer* _pMeshIndicesBuffer;
     MTL::Buffer* _pInstanceDataBuffer;
+    MTL::Buffer* _pViewProjectionBuffer;
     MTL::IndirectCommandBuffer* _pIndirectCommandBuffer;
     
     MTL::Texture* texture;

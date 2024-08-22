@@ -176,6 +176,7 @@ AAPLRenderer::AAPLRenderer(MTK::View& view)
     _pMeshVerticesBuffer = _pDevice->newBuffer(sizeof(AAPLVertex) * AAPLMaxMeshletVertexCount, MTL::ResourceStorageModeShared);
     _pMeshIndicesBuffer = _pDevice->newBuffer(sizeof(AAPLIndexType) * AAPLMaxMeshletIndicesCount, MTL::ResourceStorageModeShared);
     _pInstanceDataBuffer = _pDevice->newBuffer(sizeof(AAPLInstanceData) * instanceCount, MTL::ResourceStorageModeShared);
+    _pViewProjectionBuffer = _pDevice->newBuffer(sizeof(matrix_float4x4), MTL::ResourceStorageModeShared);
     
     
     //loadGLTF("/Users/liyangyang/Desktop/leiluo/Git\ Mesh\ Shader/Metal-Mesh-Shader/assets/scenes/simpRocks.gltf", meshVertices, meshIndices);
@@ -204,6 +205,7 @@ AAPLRenderer::~AAPLRenderer()
     _pMeshVerticesBuffer->release();
     _pMeshIndicesBuffer->release();
     _pInstanceDataBuffer->release();
+    _pViewProjectionBuffer->release();
     for (size_t i = 0; i < AAPLMaxFramesInFlight; i++) {
         _pTransformsBuffer[i]->release();
     }
@@ -417,13 +419,13 @@ void AAPLRenderer::prepareIndirectCmdBuffer()
     MTLIndirectCommandBufferDescriptor* icbDescriptor = [MTLIndirectCommandBufferDescriptor new];
 
     // Indicate that the only draw commands will be indexed draw commands.
-    icbDescriptor.commandTypes = MTLIndirectCommandTypeDrawIndexed;
+    icbDescriptor.commandTypes = MTLIndirectCommandTypeDraw;
 
     // Indicate that buffers will be set for each command IN the indirect command buffer.
     icbDescriptor.inheritBuffers = NO;
 
     // Indicate that a max of 3 buffers will be set for each command.
-    icbDescriptor.maxVertexBufferBindCount = 3;
+    icbDescriptor.maxVertexBufferBindCount = 6;
     icbDescriptor.maxFragmentBufferBindCount = 0;
 
 #if defined TARGET_MACOS || defined(__IPHONE_13_0)
@@ -453,15 +455,30 @@ void AAPLRenderer::prepareIndirectCmdBuffer()
         [ICBCommand setVertexBuffer:(__bridge id<MTLBuffer>)_pMeshVerticesBuffer
                              offset:0
                             atIndex:AAPLBufferIndexMeshVertices];
+        [ICBCommand setVertexBuffer:(__bridge id<MTLBuffer>)_pInstanceDataBuffer
+                             offset:0
+                            atIndex:AAPLBufferInstanceData];
+        [ICBCommand setVertexBuffer:(__bridge id<MTLBuffer>)_pTransformsBuffer[_curFrameInFlight]
+                             offset:0
+                            atIndex:AAPLBufferIndexTransforms];
+        [ICBCommand setVertexBuffer:(__bridge id<MTLBuffer>)_pViewProjectionBuffer
+                             offset:0
+                            atIndex:AAPLBufferViewProjectionMatrix];
         
-        [ICBCommand drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-                               indexCount:6
-                                indexType:MTLIndexTypeUInt16
-                              indexBuffer:(__bridge id<MTLBuffer>)_pMeshIndicesBuffer
-                        indexBufferOffset:0
-                            instanceCount:300
-                               baseVertex:0
-                             baseInstance:0];
+//        [ICBCommand drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+//                               indexCount:6
+//                                indexType:MTLIndexTypeUInt16
+//                              indexBuffer:(__bridge id<MTLBuffer>)_pMeshIndicesBuffer
+//                        indexBufferOffset:0
+//                            instanceCount:1
+//                               baseVertex:0
+//                             baseInstance:0];
+        
+        [ICBCommand drawPrimitives:MTLPrimitiveTypeTriangle
+                       vertexStart:0
+                       vertexCount:4
+                     instanceCount:300
+                      baseInstance:objIndex];
 
     }
     
@@ -509,7 +526,11 @@ void AAPLRenderer::draw(MTK::View* pView)
     //matrix_float4x4 viewMatrix = matrix_multiply(matrix4x4_XRotate(0.9), matrix4x4_translation(0, 4, 9));
     matrix_float4x4 viewMatrix = matrix_multiply(matrix4x4_XRotate(1.5), matrix4x4_translation(0, 4, 12));
 
-    matrix_float4x4 viewProjectionMatrix = matrix_multiply(_projectionMatrix, viewMatrix);
+    std::vector<matrix_float4x4> viewProjectionMatrix;
+    viewProjectionMatrix.push_back(matrix_multiply(_projectionMatrix, viewMatrix));
+
+    memcpy(_pViewProjectionBuffer->contents(), viewProjectionMatrix.data(), sizeof(matrix_float4x4));
+
 
     // Update the object positions.
     updateStage();
@@ -525,11 +546,13 @@ void AAPLRenderer::draw(MTK::View* pView)
         pRenderEncoder->setVertexBuffer(_pMeshVerticesBuffer, 0, AAPLBufferIndexMeshVertices);
         pRenderEncoder->setVertexBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
         pRenderEncoder->setVertexBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
-        pRenderEncoder->setVertexBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
-        //pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
+        //pRenderEncoder->setVertexBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+        pRenderEncoder->setVertexBuffer(_pViewProjectionBuffer, 0, AAPLBufferViewProjectionMatrix);
 
         pRenderEncoder->useResource(_pMeshVerticesBuffer, MTLResourceUsageRead);
         pRenderEncoder->useResource(_pInstanceDataBuffer, MTLResourceUsageRead);
+        pRenderEncoder->useResource(_pTransformsBuffer[_curFrameInFlight], MTLResourceUsageRead);
+        pRenderEncoder->useResource(_pViewProjectionBuffer, MTLResourceUsageRead);
         
         pRenderEncoder->executeCommandsInBuffer(_pIndirectCommandBuffer, {0, 1});
     }
@@ -546,12 +569,14 @@ void AAPLRenderer::draw(MTK::View* pView)
         pRenderEncoder->setObjectBuffer(_pMeshIndicesBuffer, 0, AAPLBufferIndexMeshIndices);
         
         pRenderEncoder->setObjectBuffer(_pTransformsBuffer[_curFrameInFlight], 0, AAPLBufferIndexTransforms);
-        pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+        pRenderEncoder->setObjectBuffer(_pViewProjectionBuffer, 0, AAPLBufferViewProjectionMatrix);
+
+        //pRenderEncoder->setObjectBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
 
         pRenderEncoder->setMeshBuffer(_pInstanceDataBuffer, 0, AAPLBufferInstanceData);
 
         // Pass data to the mesh stage.
-        pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
+        //pRenderEncoder->setMeshBytes(&viewProjectionMatrix, sizeof(viewProjectionMatrix), AAPLBufferViewProjectionMatrix);
 
         //pRenderEncoder->setFragmentTextures(texArray, TextureIndexBaseColor);
         pRenderEncoder->setFragmentTexture(texture, TextureIndexBaseColor);
